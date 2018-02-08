@@ -12,20 +12,32 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 class DatabaseHelper extends SQLiteOpenHelper {
 
-    public DatabaseHelper(Context context, String databaseName, int databaseVersion) {
-        super(context, databaseName, null, databaseVersion);
+    private static DatabaseHelper databaseHelper;
+
+    private static final String DATABASE_NAME = "ManageMyAssets.db";
+    private static final int DATABASE_VERSION = 1;
+
+    private DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static synchronized DatabaseHelper getDatabaseHelper(Context context) {
+        if (databaseHelper == null) {
+            databaseHelper = new DatabaseHelper(context);
+        }
+        return databaseHelper;
     }
 
     @Override
     public void onCreate(SQLiteDatabase database) {
         // Create database and all tables
-        database.execSQL(Asset.getDatabaseSchema());
+        database.execSQL(Asset.CREATE_TABLE_QUERY);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         // Drop database and tables and recreate them
-        database.execSQL(Asset.getDatabaseDropStatement());
+        database.execSQL(Asset.DROP_TABLE_QUERY);
         onCreate(database);
     }
 
@@ -68,17 +80,18 @@ class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("latitude", asset.getLatitude());
         contentValues.put("longitude", asset.getLongitude());
 
-        long result = database.insert("asset", null, contentValues);
+        long result = database.insert(Asset.TABLE_NAME, null, contentValues);
         database.close();
 
         return result != -1;
     }
 
+    // TODO This doesn't work that great. Fix it sometime
     public boolean updateAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        String whereClause = "name = ? AND latitude = ? AND longitude = ?";
+        String whereClause = "latitude = ? AND longitude = ?";
         String[] whereArgs = {asset.getName(), String.valueOf(asset.getLatitude()), String.valueOf(asset.getLongitude())};
 
         contentValues.put("name", asset.getName());
@@ -86,7 +99,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("latitude", asset.getLatitude());
         contentValues.put("longitude", asset.getLongitude());
 
-        long result = database.update("asset", contentValues, whereClause, whereArgs);
+        long result = database.update(Asset.TABLE_NAME, contentValues, whereClause, whereArgs);
         database.close();
 
         return result != -1;
@@ -98,7 +111,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         String whereClause = "name = ? AND latitude = ? AND longitude = ?";
         String[] whereArgs = {asset.getName(), String.valueOf(asset.getLatitude()), String.valueOf(asset.getLongitude())};
 
-        long result = database.delete("asset", whereClause, whereArgs);
+        long result = database.delete(Asset.TABLE_NAME, whereClause, whereArgs);
         database.close();
 
         return result != -1;

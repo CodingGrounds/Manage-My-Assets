@@ -11,6 +11,10 @@ public class Asset {
     public double latitude;
     public double longitude;
 
+    public static final String TABLE_NAME = "assets";
+    public static final String DROP_TABLE_QUERY  = "DROP TABLE IF EXISTS assets;";
+    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, latitude REAL, longitude REAL, UNIQUE (name, latitude, longitude));";
+
     public Asset() {}
 
     public Asset(String name, String description, double latitude, double longitude) {
@@ -18,20 +22,6 @@ public class Asset {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    public static String getDatabaseSchema() {
-        return "CREATE IF NOT EXISTS TABLE asset ( " +
-                "id INTEGER PRIMARY KEY " +
-                "name TEXT " +
-                "latitude REAL " +
-                "longitude REAL " +
-                "unique (name, latitude, longitude)" +
-                ");";
-    }
-
-    public static String getDatabaseDropStatement() {
-        return "DROP TABLE IF EXISTS asset;";
     }
 
     public String getName() {
