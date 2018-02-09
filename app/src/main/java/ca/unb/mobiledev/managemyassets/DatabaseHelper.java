@@ -45,7 +45,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor;
         int assetCount, arrayPosition;
-        String query = "SELECT * FROM asset";
+        String query = "SELECT * FROM " + Asset.TABLE_NAME;
 
         cursor = database.rawQuery(query, null);
         assetCount = arrayPosition = cursor.getCount();

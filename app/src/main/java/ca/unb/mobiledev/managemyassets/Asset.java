@@ -13,7 +13,7 @@ public class Asset {
 
     public static final String TABLE_NAME = "assets";
     public static final String DROP_TABLE_QUERY  = "DROP TABLE IF EXISTS assets;";
-    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, latitude REAL, longitude REAL, UNIQUE (name, latitude, longitude));";
+    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, latitude REAL, longitude REAL);";
 
     public Asset() {}
 
@@ -54,5 +54,9 @@ public class Asset {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String toString() {
+        return "<b>" + name + "</b><br><i>" + description + "</i><br>" + "Lat: " + latitude + " Lon: " + longitude;
     }
 }
