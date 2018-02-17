@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Manage My Assets</string>
+    <string name="button_text">Map</string>
 </resources>
