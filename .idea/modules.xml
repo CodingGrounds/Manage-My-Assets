@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ManageMyAssets.iml" filepath="$PROJECT_DIR$/ManageMyAssets.iml" />
+      <module fileurl="file://D:\Joshl\Documents\2018\UNB\CS2063\ManageMyAssets\ManageMyAssets.iml" filepath="D:\Joshl\Documents\2018\UNB\CS2063\ManageMyAssets\ManageMyAssets.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\Joshl\Documents\2018\UNB\CS2063\ManageMyAssets\app\app.iml" filepath="D:\Joshl\Documents\2018\UNB\CS2063\ManageMyAssets\app\app.iml" />
     </modules>
   </component>
 </project>
