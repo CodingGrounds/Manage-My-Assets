@@ -26,6 +26,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
     private GoogleMap mMap;
+    private Asset detailAsset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -33,7 +34,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         setContentView(R.layout.activity_map);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-
+        detailAsset = (Asset) getIntent().getSerializableExtra("asset");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapActivity.this);
@@ -49,8 +50,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             mMap.addMarker(new MarkerOptions().position(new LatLng(asset.getLatitude(), asset.getLongitude())).title(asset.getName()).snippet(asset.getDescription()));
         }
 
-        //mMap.addMarker(new MarkerOptions().position(fredericton).title("Fredericton!"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(fredericton, 5));
+        if(detailAsset != null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detailAsset.getLatitude(), detailAsset.getLongitude()), 20));
+        }
+        else{
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(fredericton, 5));
+            //mMap.addMarker(new MarkerOptions().position(fredericton).title("Fredericton!"));
+        }
+
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
 

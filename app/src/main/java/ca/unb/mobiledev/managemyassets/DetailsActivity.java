@@ -21,12 +21,12 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView mLatitudeTextView;
     private TextView mLongitudeTextView;
     private Button mViewOnMapButton;
-
+    private Asset asset;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Asset asset = (Asset) getIntent().getSerializableExtra("asset");
+        asset = (Asset) getIntent().getSerializableExtra("asset");
 
         mPictureImageView = findViewById(R.id.assetImage_imageView);
         mNameTextView = findViewById(R.id.assetName_textView);
@@ -44,7 +44,7 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DetailsActivity.this, MapActivity.class);
-                //TODO View on marker
+                intent.putExtra("asset", DetailsActivity.this.asset);
                 startActivity(intent);
             }
         });
