@@ -73,15 +73,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        public void onBindViewHolder(final ViewHolder viewHolder, int position) {
 
             viewHolder.asset = assetList.get(position);
             viewHolder.mAssetTextView.setText(Html.fromHtml(assetList.get(position).toString()));
             viewHolder.mAssetTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO Do something when an item is clicked
-                    Toast.makeText(MainActivity.this, "Item clicked", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                    intent.putExtra(DetailsActivity.NAME, viewHolder.asset.getName());
+                    intent.putExtra(DetailsActivity.DESCRIPTION, viewHolder.asset.getDescription());
+                    intent.putExtra(DetailsActivity.LNG, viewHolder.asset.getLongitude());
+                    intent.putExtra(DetailsActivity.LAT, viewHolder.asset.getLatitude());
+                    startActivity(intent);
                 }
             });
         }
