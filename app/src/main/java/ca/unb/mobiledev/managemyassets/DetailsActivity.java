@@ -26,6 +26,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        Asset asset = (Asset) getIntent().getSerializableExtra("asset");
 
         mPictureImageView = findViewById(R.id.assetImage_imageView);
         mNameTextView = findViewById(R.id.assetName_textView);
@@ -33,16 +34,17 @@ public class DetailsActivity extends AppCompatActivity {
         mLatitudeTextView = findViewById(R.id.assetLatitude_textView);
         mLongitudeTextView = findViewById(R.id.assetLongitude_textView);
 
-        mNameTextView.setText(getIntent().getStringExtra(NAME));
-        mDescriptionTextView.setText(getIntent().getStringExtra(DESCRIPTION));
-        mLatitudeTextView.setText(String.valueOf(getIntent().getDoubleExtra(LAT, 0)));
-        mLongitudeTextView.setText(String.valueOf(getIntent().getDoubleExtra(LNG, 0)));
+        mNameTextView.setText(asset.getName());
+        mDescriptionTextView.setText(asset.getDescription());
+        mLatitudeTextView.setText(String.valueOf(asset.getLatitude()));
+        mLongitudeTextView.setText(String.valueOf(asset.getLongitude()));
 
         mViewOnMapButton = findViewById(R.id.asset_viewOnMap_button);
         mViewOnMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DetailsActivity.this, MapActivity.class);
+                //TODO View on marker
                 startActivity(intent);
             }
         });

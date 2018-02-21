@@ -5,6 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import static ca.unb.mobiledev.managemyassets.Asset.LAT;
+import static ca.unb.mobiledev.managemyassets.Asset.LONG;
 
 /**
  * Created by Jason on 2018-01-30.
@@ -70,6 +76,27 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
         return  assets;
     }
+
+    public Asset selectAsset(LatLng latLng){
+        Log.i("LatLng", latLng.toString());
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor;
+        Asset asset = null;
+        String query = "SELECT * FROM " + Asset.TABLE_NAME + " WHERE " + LAT + "= ? AND " + LONG + "= ?;";
+        cursor = database.rawQuery(query, new String[] {String.valueOf(latLng.latitude), String.valueOf(latLng.longitude)});
+        Log.i("cursor", " " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            asset = new Asset();
+            asset.setName(cursor.getString(1));
+            asset.setDescription(cursor.getString(2));
+            asset.setLatitude(cursor.getDouble(3));
+            asset.setLongitude(cursor.getDouble(4));
+        }
+        database.close();
+        cursor.close();
+        return asset;
+    }
+
 
     public boolean insertAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();

@@ -81,10 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.NAME, viewHolder.asset.getName());
-                    intent.putExtra(DetailsActivity.DESCRIPTION, viewHolder.asset.getDescription());
-                    intent.putExtra(DetailsActivity.LNG, viewHolder.asset.getLongitude());
-                    intent.putExtra(DetailsActivity.LAT, viewHolder.asset.getLatitude());
+                    intent.putExtra("asset", viewHolder.asset);
                     startActivity(intent);
                 }
             });

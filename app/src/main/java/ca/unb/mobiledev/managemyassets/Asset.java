@@ -1,10 +1,12 @@
 package ca.unb.mobiledev.managemyassets;
 
+import java.io.Serializable;
+
 /**
  * Created by Jason on 2018-02-04.
  */
 
-public class Asset {
+public class Asset implements Serializable {
 
     public String name;
     public String description;
@@ -12,6 +14,8 @@ public class Asset {
     public double longitude;
 
     public static final String TABLE_NAME = "assets";
+    public static final String LAT = "Latitude";
+    public static final String LONG = "longitude";
     public static final String DROP_TABLE_QUERY  = "DROP TABLE IF EXISTS assets;";
     public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, latitude REAL, longitude REAL);";
 
