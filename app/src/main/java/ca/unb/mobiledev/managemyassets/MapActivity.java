@@ -2,7 +2,7 @@ package ca.unb.mobiledev.managemyassets;
 
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,7 +15,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Created by laver on 2018-02-18.
  */
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
@@ -36,7 +36,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         mMap.addMarker(new MarkerOptions().position(fredericton).title("Fredericton!"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(fredericton, 5));
     }
-
-
-
 }
