@@ -2,6 +2,7 @@ package ca.unb.mobiledev.managemyassets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +13,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter assetAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private FloatingActionButton mAddAssetFab;
 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = findViewById(R.id.button_send);
+        Button button = findViewById(R.id.asset_viewMap_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
@@ -41,6 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
+
+        mAddAssetFab = findViewById(R.id.assetAdd_fab);
+        mAddAssetFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Populate database with test data
 //        databaseHelper.insertAsset(new Asset("Test point 1", "This is a test point", 150, -150));
