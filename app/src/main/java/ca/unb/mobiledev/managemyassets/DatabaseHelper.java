@@ -32,12 +32,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         // Create database and all tables
         database.execSQL(Asset.CREATE_TABLE_QUERY);
-
-        // Populate database with test data
-        insertAsset(new Asset("Test point 1", "This is a test point", 150, -150));
-        insertAsset(new Asset("Test point 2", "This is a test point", 250, -250));
-        insertAsset(new Asset("Test point 3", "This is a test point", 350, -350));
-        insertAsset(new Asset("Test point 4", "This is a test point", 450, -450));
     }
 
     @Override

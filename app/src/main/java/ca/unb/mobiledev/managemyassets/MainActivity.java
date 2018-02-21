@@ -42,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
 
+        // Populate database with test data
+//        databaseHelper.insertAsset(new Asset("Test point 1", "This is a test point", 150, -150));
+//        databaseHelper.insertAsset(new Asset("Test point 2", "This is a test point", 250, -250));
+//        databaseHelper.insertAsset(new Asset("Test point 3", "This is a test point", 350, -350));
+//        databaseHelper.insertAsset(new Asset("Test point 4", "This is a test point", 450, -450));
+
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
 
         recyclerView = findViewById(R.id.asset_recycler_view);
