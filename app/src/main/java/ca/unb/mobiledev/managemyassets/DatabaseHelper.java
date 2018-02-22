@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Created by Jason on 2018-01-30.
  */
@@ -68,7 +70,30 @@ class DatabaseHelper extends SQLiteOpenHelper {
         database.close();
         cursor.close();
 
-        return  assets;
+        return assets;
+    }
+
+    public Asset selectAsset(LatLng latLng) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor;
+        Asset asset = null;
+
+        String whereColumns = Asset.LAT + " = ? AND " + Asset.LNG + " = ? ";
+        String[] whereArgs = {String.valueOf(latLng.latitude), String.valueOf(latLng.longitude)};
+        cursor = database.query(Asset.TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            asset = new Asset();
+            asset.setName(cursor.getString(1));
+            asset.setDescription(cursor.getString(2));
+            asset.setLatitude(cursor.getDouble(3));
+            asset.setLongitude(cursor.getDouble(4));
+        }
+
+        database.close();
+        cursor.close();
+
+        return asset;
     }
 
     public boolean insertAsset(Asset asset) {

@@ -3,16 +3,14 @@ package ca.unb.mobiledev.managemyassets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,12 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
-
+        
         // Populate database with test data
-//        databaseHelper.insertAsset(new Asset("Test point 1", "This is a test point", 150, -150));
-//        databaseHelper.insertAsset(new Asset("Test point 2", "This is a test point", 250, -250));
-//        databaseHelper.insertAsset(new Asset("Test point 3", "This is a test point", 350, -350));
-//        databaseHelper.insertAsset(new Asset("Test point 4", "This is a test point", 450, -450));
+//          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
+//          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
+//          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
+//          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
 
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
 
@@ -61,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
-
-        public AssetAdapter() {
-        }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -81,10 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.NAME, viewHolder.asset.getName());
-                    intent.putExtra(DetailsActivity.DESCRIPTION, viewHolder.asset.getDescription());
-                    intent.putExtra(DetailsActivity.LNG, viewHolder.asset.getLongitude());
-                    intent.putExtra(DetailsActivity.LAT, viewHolder.asset.getLatitude());
+                    intent.putExtra(Asset.OBJECT_NAME, viewHolder.asset);
                     startActivity(intent);
                 }
             });
