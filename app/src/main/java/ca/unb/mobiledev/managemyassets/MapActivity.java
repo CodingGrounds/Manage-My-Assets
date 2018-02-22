@@ -4,7 +4,6 @@ package ca.unb.mobiledev.managemyassets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,42 +28,39 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private Asset detailAsset;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-        detailAsset = (Asset) getIntent().getSerializableExtra("asset");
+        detailAsset = (Asset) getIntent().getSerializableExtra(Asset.OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapActivity.this);
-
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap){
+    public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        // TODO Change to zoom into the users current location
         LatLng fredericton = new LatLng(45.957319, -66.647818);
-        for(Asset asset:assetList){
+        // Add all assets from the database to the map
+        for (Asset asset : assetList) {
             mMap.addMarker(new MarkerOptions().position(new LatLng(asset.getLatitude(), asset.getLongitude())).title(asset.getName()).snippet(asset.getDescription()));
         }
 
-        if(detailAsset != null){
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detailAsset.getLatitude(), detailAsset.getLongitude()), 20));
+        if (detailAsset != null) {
+            // Zoom in on the marker the user chooses to view
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detailAsset.getLatitude(), detailAsset.getLongitude()), 15));
+        } else {
+            // Zoom in on the users current location (Currently Fredericton for testing)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(fredericton, 10));
         }
-        else{
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(fredericton, 5));
-            //mMap.addMarker(new MarkerOptions().position(fredericton).title("Fredericton!"));
-        }
 
-
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
-
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker){
-                Log.i("MARKER", "This " + marker.getTitle());
+            public boolean onMarkerClick(Marker marker) {
                 marker.showInfoWindow();
                 return true;
             }
@@ -74,16 +70,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             @Override
             public void onInfoWindowClick(Marker marker) {
                 Intent detailsIntent = new Intent(MapActivity.this, DetailsActivity.class);
-                detailsIntent.putExtra("asset", databaseHelper.selectAsset(marker.getPosition()));
+                detailsIntent.putExtra(Asset.OBJECT_NAME, databaseHelper.selectAsset(marker.getPosition()));
                 startActivity(detailsIntent);
             }
         });
-
-
-
-
     }
-
-
-
 }

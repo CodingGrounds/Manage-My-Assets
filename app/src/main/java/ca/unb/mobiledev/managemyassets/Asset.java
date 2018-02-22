@@ -14,12 +14,14 @@ public class Asset implements Serializable {
     public double longitude;
 
     public static final String TABLE_NAME = "assets";
+    public static final String OBJECT_NAME = "asset";
     public static final String LAT = "Latitude";
-    public static final String LONG = "longitude";
-    public static final String DROP_TABLE_QUERY  = "DROP TABLE IF EXISTS assets;";
+    public static final String LNG = "longitude";
+    public static final String DROP_TABLE_QUERY = "DROP TABLE IF EXISTS assets;";
     public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, latitude REAL, longitude REAL);";
 
-    public Asset() {}
+    public Asset() {
+    }
 
     public Asset(String name, String description, double latitude, double longitude) {
         this.name = name;

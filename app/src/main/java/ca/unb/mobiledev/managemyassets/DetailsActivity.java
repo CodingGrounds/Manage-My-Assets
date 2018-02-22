@@ -10,11 +10,6 @@ import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    public static final String NAME = "asset_name";
-    public static final String DESCRIPTION = "asset_description";
-    public static final String LNG = "asset_longitutde";
-    public static final String LAT = "asset_latitude";
-
     private ImageView mPictureImageView;
     private TextView mNameTextView;
     private TextView mDescriptionTextView;
@@ -22,6 +17,7 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView mLongitudeTextView;
     private Button mViewOnMapButton;
     private Asset asset;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +40,7 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DetailsActivity.this, MapActivity.class);
-                intent.putExtra("asset", DetailsActivity.this.asset);
+                intent.putExtra(Asset.OBJECT_NAME, asset);
                 startActivity(intent);
             }
         });
