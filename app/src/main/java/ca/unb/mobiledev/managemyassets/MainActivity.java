@@ -1,7 +1,12 @@
 package ca.unb.mobiledev.managemyassets;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
+
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
-        
+
         // Populate database with test data
 //          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
 //          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
@@ -56,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
 
         assetAdapter = new AssetAdapter();
         recyclerView.setAdapter(assetAdapter);
+
+        GetLocation mGetLocation = new GetLocation();
+
+        Task locationTask = mGetLocation.getLocationTask(this);
+
+        //Location l = locationTask.getResult();
+
     }
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
@@ -100,5 +120,29 @@ public class MainActivity extends AppCompatActivity {
                 mAssetTextView = view;
             }
         }
+    }
+
+    public class GetLocation {
+
+        private FusedLocationProviderClient mFusedLocationClient;
+
+        public Task getLocationTask(Context context) {
+
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                // Got last known location. In some rare situations this can be null.
+                                if (location != null) {
+                                    // Logic to handle location object
+                                }
+                            }
+                        });
+            }
+            else return null;
+
+        }
+
     }
 }
