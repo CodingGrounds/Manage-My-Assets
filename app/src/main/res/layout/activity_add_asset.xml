@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ca.unb.mobiledev.managemyassets.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/assetPicture_imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="18dp"
+            app:srcCompat="@drawable/common_google_signin_btn_icon_dark" />
+
+        <EditText
+            android:id="@+id/assetName_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/assetCurrentLocation_checkBox"
+            android:layout_below="@+id/assetPicture_imageView"
+            android:layout_marginEnd="75dp"
+            android:layout_marginTop="19dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="Name" />
+
+        <EditText
+            android:id="@+id/assetDescription_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/assetName_editText"
+            android:layout_below="@+id/assetName_editText"
+            android:layout_marginTop="10dp"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:hint="Description" />
+
+        <EditText
+            android:id="@+id/assetLatitude_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/assetLongitude_editText"
+            android:layout_below="@+id/assetDescription_editText"
+            android:layout_marginTop="14dp"
+            android:ems="10"
+            android:hint="Latitude"
+            android:inputType="numberSigned" />
+
+        <EditText
+            android:id="@+id/assetLongitude_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/assetDescription_editText"
+            android:layout_below="@+id/assetLatitude_editText"
+            android:layout_marginTop="13dp"
+            android:ems="10"
+            android:hint="Longitude"
+            android:inputType="numberSigned" />
+
+        <CheckBox
+            android:id="@+id/assetCurrentLocation_checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/assetLongitude_editText"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="35dp"
+            android:text="Use Current Location" />
+
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/assetSave_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:tint="@android:color/white"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@android:drawable/ic_menu_save" />
+
+</android.support.design.widget.CoordinatorLayout>
