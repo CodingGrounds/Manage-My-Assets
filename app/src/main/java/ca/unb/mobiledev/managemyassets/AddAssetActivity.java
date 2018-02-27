@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -68,12 +69,28 @@ public class AddAssetActivity extends AppCompatActivity {
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(AddAssetActivity.this, "Show user the location on map", Toast.LENGTH_SHORT).show();
+
                 String name = mNameEditText.getText().toString();
                 String description = mDescriptionEditText.getText().toString();
-                Double latitude = Double.parseDouble(mLatitudeEditText.getText().toString());
-                Double longitude = Double.parseDouble(mLongitudeEditText.getText().toString());
-                Asset asset = new Asset(name, description, latitude, longitude);
+                String latitude = mLatitudeEditText.getText().toString();
+                String longitude = mLongitudeEditText.getText().toString();
+
+                if (TextUtils.isEmpty(name)) {
+                    mNameEditText.setError("Name cannot be empty");
+                }
+                if (TextUtils.isEmpty(latitude)) {
+                    mLatitudeEditText.setError("Latitude cannot be empty");
+                }
+                if (TextUtils.isEmpty(longitude)) {
+                    mLongitudeEditText.setError("Longitude cannot be empty");
+                }
+
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
+                    // Don't attempt to store anything if the correct fields aren't provided
+                    return;
+                }
+
+                Asset asset = new Asset(name, description, Double.parseDouble(latitude), Double.parseDouble(longitude));
 
                 DatabaseHelper.getDatabaseHelper(AddAssetActivity.this).insertAsset(asset);
 
