@@ -2,6 +2,7 @@ package ca.unb.mobiledev.managemyassets;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter assetAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private FloatingActionButton mAddAssetFab;
 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = findViewById(R.id.button_send);
+        Button button = findViewById(R.id.asset_viewMap_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
@@ -39,7 +41,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
-        
+
+        mAddAssetFab = findViewById(R.id.assetAdd_fab);
+        mAddAssetFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, AddAssetActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // Populate database with test data
 //          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
 //          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
