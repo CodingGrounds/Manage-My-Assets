@@ -1,5 +1,6 @@
 package ca.unb.mobiledev.managemyassets;
 
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,6 +69,17 @@ public class AddAssetActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Toast.makeText(AddAssetActivity.this, "Show user the location on map", Toast.LENGTH_SHORT).show();
+                String name = mNameEditText.getText().toString();
+                String description = mDescriptionEditText.getText().toString();
+                Double latitude = Double.parseDouble(mLatitudeEditText.getText().toString());
+                Double longitude = Double.parseDouble(mLongitudeEditText.getText().toString());
+                Asset asset = new Asset(name, description, latitude, longitude);
+
+                DatabaseHelper.getDatabaseHelper(AddAssetActivity.this).insertAsset(asset);
+
+                Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+                intent.putExtra(Asset.OBJECT_NAME, asset);
+                startActivity(intent);
             }
         });
     }

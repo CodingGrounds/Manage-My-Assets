@@ -9,6 +9,6 @@ import com.google.android.gms.maps.model.LatLng;
 public class DeviceLocation {
 
     public static LatLng getDeviceLocation() {
-        return new LatLng(42, 69);
+        return new LatLng(45.957319, -66.647818);
     }
 }
