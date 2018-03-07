@@ -25,8 +25,33 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBL69DcbO8II2wOKpmzeOC7EB8FdI6tmoM" />
 
-        <activity android:name=".MapActivity" />
-        <activity android:name=".DetailsActivity"></activity>
+        <activity
+            android:name=".MapActivity"
+            android:parentActivityName=".MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
+        </activity>
+        <activity
+            android:name=".DetailsActivity"
+            android:parentActivityName=".MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AddAssetActivity"
+            android:parentActivityName=".MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

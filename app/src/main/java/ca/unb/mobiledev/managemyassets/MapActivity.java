@@ -11,9 +11,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
+
+import android.support.v7.app.AppCompatActivity;
+
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,7 +32,8 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
  * Created by laver on 2018-02-18.
  */
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback , LocationListener {
+
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
