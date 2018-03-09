@@ -9,11 +9,14 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-
+import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,8 +28,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 
 /**
  * Created by laver on 2018-02-18.
@@ -40,13 +41,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Asset detailAsset;
     private LocationManager locationManager;
+    private FloatingActionButton directionFab;
     protected static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
-
-
+    private LatLng currentLocation;
+    private Marker directionsMarker;
+    private int locationCounter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        locationCounter = 0;
+        directionFab = findViewById(R.id.directions_fab);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
         detailAsset = (Asset) getIntent().getSerializableExtra(Asset.OBJECT_NAME);
@@ -58,7 +63,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        googleMap.setMapType(MAP_TYPE_HYBRID);
+        mMap.getUiSettings().setMapToolbarEnabled(true);
         updateMapAssets();
         setCurrentLocationEnabled();
         if (detailAsset != null) {
@@ -80,9 +85,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(Marker marker) {
                 marker.showInfoWindow();
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                addDirectionsButton(marker);
                 return true;
             }
         });
+
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
@@ -93,18 +101,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+
+
     }
 
+    //Method for adding direction Fab
+    private void addDirectionsButton(Marker marker){
+        directionsMarker = marker;
+        directionFab.setVisibility(View.VISIBLE);
+        directionFab.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(
+                        "http://maps.google.com/maps?saddr=" + currentLocation.latitude + "," + currentLocation.longitude + "&daddr=" + directionsMarker.getPosition().latitude + "," + directionsMarker.getPosition().longitude));
+                startActivity(intent);
+            }
+        });
+        //DON'T Know if u want this here
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+
+                directionFab.setVisibility(View.INVISIBLE);
+                marker.hideInfoWindow();
+            }
+        });
+
+    }
 
     //Method for checking current location
     @Override
     public void onLocationChanged(Location location) {
         Log.i("location change", "OnLocationChange");
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        currentLocation = latLng;
         //Only when no element is clicked
-        if(detailAsset == null){
+
+        if(detailAsset == null && locationCounter == 0){
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            locationCounter++;
         }
     }
 
