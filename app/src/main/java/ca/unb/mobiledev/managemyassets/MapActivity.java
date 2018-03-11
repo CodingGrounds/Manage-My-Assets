@@ -70,6 +70,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             // Zoom in on the marker the user chooses to view
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detailAsset.getLatitude(), detailAsset.getLongitude()), 15));
         }
+        else if(currentLocation != null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
+        }
+
+
 
 
     }
