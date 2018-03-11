@@ -1,8 +1,13 @@
 package ca.unb.mobiledev.managemyassets;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +18,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -21,17 +31,19 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter assetAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private FloatingActionButton mAddAssetFab;
 
     private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
+
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = findViewById(R.id.asset_viewMap_button);
+        Button button = findViewById(R.id.button_send);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
@@ -41,15 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
-
-        mAddAssetFab = findViewById(R.id.assetAdd_fab);
-        mAddAssetFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddAssetActivity.class);
-                startActivity(intent);
-            }
-        });
 
         // Populate database with test data
 //          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
@@ -67,6 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
         assetAdapter = new AssetAdapter();
         recyclerView.setAdapter(assetAdapter);
+
+        GetLocation mGetLocation = new GetLocation();
+
+        final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
+        // No explanation needed; request the permission
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION);
+
+        Location location = mGetLocation.getDeviceLocation(this);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
     }
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
@@ -112,4 +128,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }

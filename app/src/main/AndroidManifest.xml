@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ca.unb.mobiledev.managemyassets">
+    package="com.google.android.gms.location.sample.basiclocationsample" >
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- TODO Create permission check -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -25,33 +28,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBL69DcbO8II2wOKpmzeOC7EB8FdI6tmoM" />
 
-        <activity
-            android:name=".MapActivity"
-            android:parentActivityName=".MainActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
-        </activity>
-        <activity
-            android:name=".DetailsActivity"
-            android:parentActivityName=".MainActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
-        </activity>
-        <activity
-            android:name=".AddAssetActivity"
-            android:parentActivityName=".MainActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
-        </activity>
+        <activity android:name=".MapActivity" />
+        <activity android:name=".DetailsActivity"></activity>
     </application>
 
 </manifest>
