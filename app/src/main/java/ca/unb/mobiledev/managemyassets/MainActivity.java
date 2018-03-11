@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -72,10 +73,16 @@ public class MainActivity extends AppCompatActivity {
 
         GetLocation mGetLocation = new GetLocation();
 
-        Task locationTask = mGetLocation.getLocationTask(this);
+        final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
-        //Location l = locationTask.getResult();
+        // No explanation needed; request the permission
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION);
 
+        Location location = mGetLocation.getDeviceLocation(this);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
     }
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
@@ -122,27 +129,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class GetLocation {
 
-        private FusedLocationProviderClient mFusedLocationClient;
-
-        public Task getLocationTask(Context context) {
-
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return mFusedLocationClient.getLastLocation()
-                        .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                // Got last known location. In some rare situations this can be null.
-                                if (location != null) {
-                                    // Logic to handle location object
-                                }
-                            }
-                        });
-            }
-            else return null;
-
-        }
-
-    }
 }
