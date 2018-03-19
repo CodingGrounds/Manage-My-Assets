@@ -18,11 +18,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ManageMyAssets.db";
     private static final int DATABASE_VERSION = 1;
 
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                          int version) {
-        super(context, DATABASE_NAME, factory, version);
-    }
-
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

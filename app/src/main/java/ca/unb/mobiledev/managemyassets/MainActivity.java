@@ -22,8 +22,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter assetAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton mAddAssetFab;
+    private DatabaseCallTask databaseCallTask;
 
-    private DatabaseHelper databaseHelper;
+    protected static DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
 
     @Override
@@ -57,6 +58,25 @@ public class MainActivity extends AppCompatActivity {
 //          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
 //          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
 
+        databaseCallTask = new DatabaseCallTask(this);
+        databaseCallTask.execute("SELECT ASSETS");
+
+
+    }
+
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        databaseCallTask.cancel(true);
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+       // databaseCallTask.cancel(true);
+    }
+
+    public void displayAssets(Asset[] assets){
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
 
         recyclerView = findViewById(R.id.asset_recycler_view);
@@ -68,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         assetAdapter = new AssetAdapter();
         recyclerView.setAdapter(assetAdapter);
     }
+
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
 
@@ -111,5 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 mAssetTextView = view;
             }
         }
+
+
     }
 }
