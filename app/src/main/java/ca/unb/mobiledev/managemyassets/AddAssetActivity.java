@@ -70,6 +70,7 @@ public class AddAssetActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                // TODO Have options to: view on map, view list, add another asset, or get directions
                 String name = mNameEditText.getText().toString();
                 String description = mDescriptionEditText.getText().toString();
                 String latitude = mLatitudeEditText.getText().toString();

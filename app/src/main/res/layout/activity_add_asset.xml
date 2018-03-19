@@ -51,7 +51,7 @@
             android:layout_marginTop="14dp"
             android:ems="10"
             android:hint="Latitude"
-            android:inputType="numberSigned" />
+            android:inputType="numberDecimal|numberSigned" />
 
         <EditText
             android:id="@+id/assetLongitude_editText"
@@ -62,7 +62,7 @@
             android:layout_marginTop="13dp"
             android:ems="10"
             android:hint="Longitude"
-            android:inputType="numberSigned" />
+            android:inputType="numberDecimal|numberSigned" />
 
         <CheckBox
             android:id="@+id/assetCurrentLocation_checkBox"
