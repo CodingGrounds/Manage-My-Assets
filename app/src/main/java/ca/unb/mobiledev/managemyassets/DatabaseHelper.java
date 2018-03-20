@@ -16,7 +16,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper databaseHelper;
     private static final String DATABASE_NAME = "ManageMyAssets.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,10 +56,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Asset asset = new Asset();
+                asset.setId(cursor.getInt(0));
                 asset.setName(cursor.getString(1));
                 asset.setDescription(cursor.getString(2));
-                asset.setLatitude(cursor.getDouble(3));
-                asset.setLongitude(cursor.getDouble(4));
+                asset.setNotes(cursor.getString(3));
+                asset.setLatitude(cursor.getDouble(4));
+                asset.setLongitude(cursor.getDouble(5));
 
                 assets[assetCount - arrayPosition] = asset;
                 arrayPosition--;
@@ -83,10 +85,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             asset = new Asset();
+            asset.setId(cursor.getInt(0));
             asset.setName(cursor.getString(1));
             asset.setDescription(cursor.getString(2));
-            asset.setLatitude(cursor.getDouble(3));
-            asset.setLongitude(cursor.getDouble(4));
+            asset.setNotes(cursor.getString(3));
+            asset.setLatitude(cursor.getDouble(4));
+            asset.setLongitude(cursor.getDouble(5));
         }
 
         database.close();
@@ -101,6 +105,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
         contentValues.put("name", asset.getName());
         contentValues.put("description", asset.getDescription());
+        contentValues.put("notes", asset.getNotes());
         contentValues.put("latitude", asset.getLatitude());
         contentValues.put("longitude", asset.getLongitude());
 

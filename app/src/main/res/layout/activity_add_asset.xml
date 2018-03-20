@@ -43,15 +43,26 @@
             android:hint="Description" />
 
         <EditText
+            android:id="@+id/assetNotes_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/assetDescription_editText"
+            android:layout_below="@+id/assetDescription_editText"
+            android:layout_marginTop="10dp"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:hint="Notes" />
+
+        <EditText
             android:id="@+id/assetLatitude_editText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/assetLongitude_editText"
-            android:layout_below="@+id/assetDescription_editText"
+            android:layout_below="@+id/assetNotes_editText"
             android:layout_marginTop="14dp"
             android:ems="10"
             android:hint="Latitude"
-            android:inputType="numberSigned" />
+            android:inputType="numberDecimal|numberSigned" />
 
         <EditText
             android:id="@+id/assetLongitude_editText"
@@ -62,7 +73,7 @@
             android:layout_marginTop="13dp"
             android:ems="10"
             android:hint="Longitude"
-            android:inputType="numberSigned" />
+            android:inputType="numberDecimal|numberSigned" />
 
         <CheckBox
             android:id="@+id/assetCurrentLocation_checkBox"

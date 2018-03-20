@@ -13,6 +13,7 @@ public class DetailsActivity extends AppCompatActivity {
     private ImageView mPictureImageView;
     private TextView mNameTextView;
     private TextView mDescriptionTextView;
+    private TextView mNotesTextView;
     private TextView mLatitudeTextView;
     private TextView mLongitudeTextView;
     private Button mViewOnMapButton;
@@ -27,11 +28,13 @@ public class DetailsActivity extends AppCompatActivity {
         mPictureImageView = findViewById(R.id.assetImage_imageView);
         mNameTextView = findViewById(R.id.assetName_textView);
         mDescriptionTextView = findViewById(R.id.assetDescription_textView);
+        mNotesTextView = findViewById(R.id.assetNotes_textView);
         mLatitudeTextView = findViewById(R.id.assetLatitude_textView);
         mLongitudeTextView = findViewById(R.id.assetLongitude_textView);
 
         mNameTextView.setText(asset.getName());
         mDescriptionTextView.setText(asset.getDescription());
+        mNotesTextView.setText(asset.getNotes());
         mLatitudeTextView.setText(String.valueOf(asset.getLatitude()));
         mLongitudeTextView.setText(String.valueOf(asset.getLongitude()));
 
