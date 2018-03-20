@@ -22,8 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter assetAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton mAddAssetFab;
-
-    private DatabaseHelper databaseHelper;
+    private DatabaseCallTask databaseCallTask;
     private ArrayList<Asset> assetList;
 
     @Override
@@ -40,7 +39,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Initialize variables
-        databaseHelper = DatabaseHelper.getDatabaseHelper(MainActivity.this);
+        databaseCallTask = new DatabaseCallTask(this);
+        assetList = new ArrayList<>();
+
+        recyclerView = findViewById(R.id.asset_recycler_view);
+        layoutManager = new LinearLayoutManager(this);
+        assetAdapter = new AssetAdapter();
 
         mAddAssetFab = findViewById(R.id.assetAdd_fab);
         mAddAssetFab.setOnClickListener(new View.OnClickListener() {
@@ -51,22 +55,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Populate database with test data
+//          Populate database with test data
 //          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
 //          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
 //          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
 //          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
 
-        assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-
-        recyclerView = findViewById(R.id.asset_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-
-        assetAdapter = new AssetAdapter();
         recyclerView.setAdapter(assetAdapter);
+
+        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, null);
+    }
+
+    public void databaseCallFinished(Asset[] assets) {
+        assetList = new ArrayList<>(Arrays.asList(assets));
+        assetAdapter.notifyDataSetChanged();
     }
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
@@ -100,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
         /*
             This class manages the  individual 'tiles' that are displayed in the RecyclerView
-         */
+        */
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView mAssetTextView;

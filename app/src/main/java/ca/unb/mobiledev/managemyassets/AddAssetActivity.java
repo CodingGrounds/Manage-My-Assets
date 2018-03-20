@@ -24,10 +24,14 @@ public class AddAssetActivity extends AppCompatActivity {
     private CheckBox mCurrentLocationCheckBox;
     private FloatingActionButton mSaveAssetFab;
 
+    private DatabaseCallTask databaseCallTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_asset);
+
+        databaseCallTask = new DatabaseCallTask(this);
 
         mNameEditText = findViewById(R.id.assetName_editText);
         mDescriptionEditText = findViewById(R.id.assetDescription_editText);
@@ -72,7 +76,6 @@ public class AddAssetActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // TODO Have options to: view on map, view list, add another asset, or get directions
                 String name = mNameEditText.getText().toString();
                 String description = mDescriptionEditText.getText().toString();
                 String notes = mNotesEditText.getText().toString();
@@ -95,13 +98,14 @@ public class AddAssetActivity extends AppCompatActivity {
                 }
 
                 Asset asset = new Asset(name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude));
-
-                DatabaseHelper.getDatabaseHelper(AddAssetActivity.this).insertAsset(asset);
-
-                Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
-                intent.putExtra(Asset.OBJECT_NAME, asset);
-                startActivity(intent);
+                databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, asset);
             }
         });
+    }
+
+    public void databaseCallFinished(Asset asset) {
+        Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+        intent.putExtra(Asset.OBJECT_NAME, asset);
+        startActivity(intent);
     }
 }
