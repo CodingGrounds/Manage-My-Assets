@@ -22,12 +22,14 @@ public class AddAssetActivity extends AppCompatActivity {
     private ImageView mAssetPictureImageView;
     private CheckBox mCurrentLocationCheckBox;
     private FloatingActionButton mSaveAssetFab;
+    private DatabaseCallTask databaseCallTask;
+    private Asset newAsset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_asset);
-
+        databaseCallTask = new DatabaseCallTask(this);
         mNameEditText = findViewById(R.id.assetName_editText);
         mDescriptionEditText = findViewById(R.id.assetDescription_editText);
         mLatitudeEditText = findViewById(R.id.assetLatitude_editText);
@@ -90,14 +92,16 @@ public class AddAssetActivity extends AppCompatActivity {
                     return;
                 }
 
-                Asset asset = new Asset(name, description, Double.parseDouble(latitude), Double.parseDouble(longitude));
-
-                DatabaseHelper.getDatabaseHelper(AddAssetActivity.this).insertAsset(asset);
-
-                Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
-                intent.putExtra(Asset.OBJECT_NAME, asset);
-                startActivity(intent);
+                newAsset = new Asset(name, description, Double.parseDouble(latitude), Double.parseDouble(longitude));
+                databaseCallTask = new DatabaseCallTask(AddAssetActivity.this);
+                databaseCallTask.execute("INSERT ASSET", newAsset);
             }
         });
+    }
+
+    public void displayNewAsset(){
+        Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+        intent.putExtra(Asset.OBJECT_NAME, newAsset);
+        startActivity(intent);
     }
 }

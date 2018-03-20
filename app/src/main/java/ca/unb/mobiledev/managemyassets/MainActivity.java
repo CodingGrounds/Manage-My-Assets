@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton mAddAssetFab;
     private DatabaseCallTask databaseCallTask;
-
     protected static DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
 
@@ -52,18 +51,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Populate database with test data
+//          Populate database with test data
 //          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
 //          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
 //          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
 //          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
-
         databaseCallTask = new DatabaseCallTask(this);
-        databaseCallTask.execute("SELECT ASSETS");
-
-
+        databaseCallTask.execute(new Object[] {"SELECT ASSETS", null});
     }
-
 
     @Override
     protected void onPause(){
@@ -77,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayAssets(Asset[] assets){
-        assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
+        assetList = new ArrayList<>(Arrays.asList(assets));
 
         recyclerView = findViewById(R.id.asset_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -88,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         assetAdapter = new AssetAdapter();
         recyclerView.setAdapter(assetAdapter);
     }
-
 
     public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
 
@@ -121,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         /*
             This class manages the  individual 'tiles' that are displayed in the RecyclerView
-         */
+        */
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView mAssetTextView;
@@ -132,7 +126,5 @@ public class MainActivity extends AppCompatActivity {
                 mAssetTextView = view;
             }
         }
-
-
     }
 }

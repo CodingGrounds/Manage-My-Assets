@@ -46,6 +46,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LatLng currentLocation;
     private Marker directionsMarker;
     private int locationCounter;
+    private DatabaseCallTask databaseCallTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,9 +76,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
 
-
-
-
     }
     
     private void updateMapAssets(){
@@ -100,14 +99,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Intent detailsIntent = new Intent(MapActivity.this, DetailsActivity.class);
-                detailsIntent.putExtra(Asset.OBJECT_NAME, databaseHelper.selectAsset(marker.getPosition()));
-                startActivity(detailsIntent);
+                databaseCallTask = new DatabaseCallTask(MapActivity.this);
+                databaseCallTask.execute("SELECT BY LatLng", marker.getPosition());
             }
         });
 
+    }
 
-
+    public void displayDetailsView(Asset asset){
+        Intent detailsIntent = new Intent(MapActivity.this, DetailsActivity.class);
+        detailsIntent.putExtra(Asset.OBJECT_NAME, asset);
+        startActivity(detailsIntent);
     }
 
     //Method for adding direction Fab
