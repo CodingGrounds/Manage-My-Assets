@@ -33,15 +33,6 @@ public class Asset implements Serializable {
         this.longitude = longitude;
     }
 
-    public Asset(int id, String name, String description, String notes, double latitude, double longitude) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.notes = notes;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
     public int getId() {
         return id;
     }

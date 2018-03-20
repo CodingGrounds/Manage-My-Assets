@@ -60,8 +60,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 asset.setId(cursor.getInt(0));
                 asset.setName(cursor.getString(1));
                 asset.setDescription(cursor.getString(2));
-                asset.setLatitude(cursor.getDouble(3));
-                asset.setLongitude(cursor.getDouble(4));
+                asset.setNotes(cursor.getString(3));
+                asset.setLatitude(cursor.getDouble(4));
+                asset.setLongitude(cursor.getDouble(5));
 
                 assets[assetCount - arrayPosition] = asset;
                 arrayPosition--;
@@ -88,8 +89,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
             asset.setId(cursor.getInt(0));
             asset.setName(cursor.getString(1));
             asset.setDescription(cursor.getString(2));
-            asset.setLatitude(cursor.getDouble(3));
-            asset.setLongitude(cursor.getDouble(4));
+            asset.setNotes(cursor.getString(3));
+            asset.setLatitude(cursor.getDouble(4));
+            asset.setLongitude(cursor.getDouble(5));
         }
 
         database.close();

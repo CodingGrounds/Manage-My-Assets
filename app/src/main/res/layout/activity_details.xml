@@ -54,7 +54,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="Description"
+        android:text="Notes"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -90,7 +90,7 @@
         app:layout_constraintEnd_toStartOf="@+id/assetLongitude_textView"
         app:layout_constraintHorizontal_bias="0.411"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/assetDescription_textView"
+        app:layout_constraintTop_toBottomOf="@+id/assetNotes_textView"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
