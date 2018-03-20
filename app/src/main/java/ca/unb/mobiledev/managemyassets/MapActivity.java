@@ -71,14 +71,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (detailAsset != null) {
             // Zoom in on the marker the user chooses to view
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detailAsset.getLatitude(), detailAsset.getLongitude()), 15));
-        }
-        else if(currentLocation != null){
+        } else if (currentLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
 
     }
-    
-    private void updateMapAssets(){
+
+    private void updateMapAssets() {
 
         // Add all assets from the database to the map
         for (Asset asset : assetList) {
@@ -106,17 +105,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    public void displayDetailsView(Asset asset){
+    public void databaseCallFinished(Asset asset) {
         Intent detailsIntent = new Intent(MapActivity.this, DetailsActivity.class);
         detailsIntent.putExtra(Asset.OBJECT_NAME, asset);
         startActivity(detailsIntent);
     }
 
     //Method for adding direction Fab
-    private void addDirectionsButton(Marker marker){
+    private void addDirectionsButton(Marker marker) {
         directionsMarker = marker;
         directionFab.setVisibility(View.VISIBLE);
-        directionFab.setOnClickListener(new View.OnClickListener(){
+        directionFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(
@@ -139,12 +138,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //Method for checking current location
     @Override
     public void onLocationChanged(Location location) {
-        Log.i("location change", "OnLocationChange");
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         currentLocation = latLng;
         //Only when no element is clicked
 
-        if(detailAsset == null && locationCounter == 0){
+        if (detailAsset == null && locationCounter == 0) {
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             locationCounter++;
@@ -170,7 +168,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setCurrentLocationEnabled() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             String provider = locationManager.getBestProvider(criteria, true);
             Location location = locationManager.getLastKnownLocation(provider);
@@ -181,7 +179,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             locationManager.requestLocationUpdates(provider, 2000, 10, this);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                this.requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 

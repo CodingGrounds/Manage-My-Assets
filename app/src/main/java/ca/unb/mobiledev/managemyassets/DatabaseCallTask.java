@@ -2,10 +2,10 @@ package ca.unb.mobiledev.managemyassets;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Created by laver on 2018-03-18.
@@ -13,37 +13,51 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
 
+    public static final int SELECT_ASSETS = 1;
+    public static final int SELECT_ASSET = 2;
+    public static final int INSERT_ASSET = 3;
+    public static final int UPDATE_ASSET = 4;
+    public static final int DELETE_ASSET = 5;
+
     /* Database helper object */
-    private static DatabaseHelper myDatabase;
+    private DatabaseHelper myDatabase;
 
     /* Activity calling the async task */
-    private Activity activity;
+    private WeakReference<Activity> weakActivity;
 
-    public DatabaseCallTask(Activity activity){
-        this.activity = activity;
+    public DatabaseCallTask(Activity activity) {
+        this.weakActivity = new WeakReference<>(activity);
     }
 
     @Override
     protected void onPreExecute() {
-        myDatabase = MainActivity.databaseHelper;
+        Activity activity = weakActivity.get();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            this.cancel(true);
+            return;
+        }
+
+        myDatabase = DatabaseHelper.getDatabaseHelper(activity);
     }
 
 
     @Override
     protected Object[] doInBackground(Object... params) {
-        Log.i("Background", "Working bg");
-        if(params.length > 0){
-            String option = (String) params[0];
-            switch(option){
-                case "SELECT ASSETS":
+        if (params.length > 0) {
+            int option = (int) params[0];
+            switch (option) {
+                case SELECT_ASSETS:
                     return new Object[]{option, myDatabase.selectAssets()};
-                case "SELECT BY LatLng":
-                    return new Object[]{option, myDatabase.selectAsset((LatLng)params[1])};
-                case "INSERT ASSET":
-                    return new Object[]{option, myDatabase.insertAsset((Asset)params[1])};
+                case SELECT_ASSET:
+                    return new Object[]{option, myDatabase.selectAsset((LatLng) params[1])};
+                case INSERT_ASSET:
+                    return new Object[]{option, myDatabase.insertAsset((Asset) params[1])};
+                default:
+                    return new Object[0];
             }
+        } else {
+            return new Object[0];
         }
-        return null;
     }
 
 
@@ -51,23 +65,23 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
     protected void onPostExecute(Object[] result) {
         super.onPostExecute(result);
 
-        if(result.length > 0){
-            Log.i("Post", "Done Post");
-            String option = (String) result[0];
-            switch(option){
-                case "SELECT ASSETS":
-                    Toast.makeText( activity, "LIST UPDATED", Toast.LENGTH_LONG).show();
-                    this.cancel(true);
+        Activity activity = weakActivity.get();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed())
+            return;
 
-                    ((MainActivity) activity).displayAssets((Asset[])result[1]) ;
+        if (result.length > 0) {
+            int option = (int) result[0];
+            switch (option) {
+                case SELECT_ASSETS:
+                    ((MainActivity) activity).databaseCallFinished((Asset[]) result[1]);
                     break;
-                case "INSERT ASSET":
-                    Toast.makeText(activity, "Asset Added", Toast.LENGTH_LONG).show();
-                    ((AddAssetActivity) activity).displayNewAsset();
+                case SELECT_ASSET:
+                    ((MapActivity) activity).databaseCallFinished((Asset) result[1]);
                     break;
-                case "SELECT BY LatLng":
-                    Toast.makeText(activity, "Asset Details", Toast.LENGTH_LONG).show();
-                    ((MapActivity)activity).displayDetailsView((Asset) result[1]);
+                case INSERT_ASSET:
+                    ((AddAssetActivity) activity).databaseCallFinished((Asset) result[1]);
+                    break;
+                default:
                     break;
             }
         }
