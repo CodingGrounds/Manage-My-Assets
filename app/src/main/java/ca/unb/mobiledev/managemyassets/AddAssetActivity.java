@@ -1,17 +1,16 @@
 package ca.unb.mobiledev.managemyassets;
 
 import android.content.Intent;
+import android.location.Location;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 public class AddAssetActivity extends AppCompatActivity {
 
@@ -23,7 +22,7 @@ public class AddAssetActivity extends AppCompatActivity {
     private ImageView mAssetPictureImageView;
     private CheckBox mCurrentLocationCheckBox;
     private FloatingActionButton mSaveAssetFab;
-
+    private DeviceLocation deviceLocation;
     private DatabaseCallTask databaseCallTask;
 
     @Override
@@ -32,7 +31,7 @@ public class AddAssetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_asset);
 
         databaseCallTask = new DatabaseCallTask(this);
-
+        deviceLocation = new DeviceLocation();
         mNameEditText = findViewById(R.id.assetName_editText);
         mDescriptionEditText = findViewById(R.id.assetDescription_editText);
         mNotesEditText = findViewById(R.id.assetNotes_editText);
@@ -54,13 +53,13 @@ public class AddAssetActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (mCurrentLocationCheckBox.isChecked()) {
-                    LatLng coordinates = DeviceLocation.getDeviceLocation();
+                    Location location = deviceLocation.getDeviceLocation(AddAssetActivity.this);
                     // Grey out the longitude and latitude fields
                     mLatitudeEditText.setEnabled(false);
                     mLongitudeEditText.setEnabled(false);
                     // Put the device's current coordinates in the boxes
-                    mLatitudeEditText.setText(String.valueOf(coordinates.latitude));
-                    mLongitudeEditText.setText(String.valueOf(coordinates.longitude));
+                    mLatitudeEditText.setText(String.valueOf(location.getLatitude()));
+                    mLongitudeEditText.setText(String.valueOf(location.getLongitude()));
                     // TODO Add a refresh button on the coordinates
                 } else {
                     // Re-enable the fields
