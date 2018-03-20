@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class Asset implements Serializable {
 
-    private int id;
+    private long id;
     private String name;
     private String description;
     private String notes;
@@ -17,6 +17,10 @@ public class Asset implements Serializable {
 
     public static final String TABLE_NAME = "assets";
     public static final String OBJECT_NAME = "asset";
+    public static final String ID = "id";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String NOTES = "notes";
     public static final String LAT = "latitude";
     public static final String LNG = "longitude";
     public static final String DROP_TABLE_QUERY = "DROP TABLE IF EXISTS assets;";
@@ -33,11 +37,11 @@ public class Asset implements Serializable {
         this.longitude = longitude;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

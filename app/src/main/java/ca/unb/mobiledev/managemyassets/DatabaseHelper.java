@@ -74,6 +74,31 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return assets;
     }
 
+    public Asset selectAsset(long id) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor;
+        Asset asset = null;
+
+        String whereColumns = Asset.ID + " = ? ";
+        String[] whereArgs = {String.valueOf(id)};
+        cursor = database.query(Asset.TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            asset = new Asset();
+            asset.setId(cursor.getInt(0));
+            asset.setName(cursor.getString(1));
+            asset.setDescription(cursor.getString(2));
+            asset.setNotes(cursor.getString(3));
+            asset.setLatitude(cursor.getDouble(4));
+            asset.setLongitude(cursor.getDouble(5));
+        }
+
+        database.close();
+        cursor.close();
+
+        return asset;
+    }
+
     public Asset selectAsset(LatLng latLng) {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor;
@@ -99,7 +124,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return asset;
     }
 
-    public boolean insertAsset(Asset asset) {
+    public Asset insertAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -112,7 +137,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         long result = database.insert(Asset.TABLE_NAME, null, contentValues);
         database.close();
 
-        return result != -1;
+        return selectAsset(result);
     }
 
     // TODO This doesn't work that great. Fix it sometime
