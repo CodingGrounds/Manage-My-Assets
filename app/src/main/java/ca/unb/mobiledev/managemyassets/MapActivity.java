@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -175,7 +174,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (location != null) {
                 onLocationChanged(location);
             }
-
+            //TODO Cant use devicelocation becuase of these updates
             locationManager.requestLocationUpdates(provider, 2000, 10, this);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
