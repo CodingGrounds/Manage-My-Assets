@@ -17,6 +17,7 @@ public class AddAssetActivity extends AppCompatActivity {
 
     private EditText mNameEditText;
     private EditText mDescriptionEditText;
+    private EditText mNotesEditText;
     private EditText mLatitudeEditText;
     private EditText mLongitudeEditText;
     private ImageView mAssetPictureImageView;
@@ -32,6 +33,7 @@ public class AddAssetActivity extends AppCompatActivity {
         databaseCallTask = new DatabaseCallTask(this);
         mNameEditText = findViewById(R.id.assetName_editText);
         mDescriptionEditText = findViewById(R.id.assetDescription_editText);
+        mNotesEditText = findViewById(R.id.assetNotes_editText);
         mLatitudeEditText = findViewById(R.id.assetLatitude_editText);
         mLongitudeEditText = findViewById(R.id.assetLongitude_editText);
         mAssetPictureImageView = findViewById(R.id.assetPicture_imageView);
@@ -74,6 +76,7 @@ public class AddAssetActivity extends AppCompatActivity {
 
                 String name = mNameEditText.getText().toString();
                 String description = mDescriptionEditText.getText().toString();
+                String notes = mNotesEditText.getText().toString();
                 String latitude = mLatitudeEditText.getText().toString();
                 String longitude = mLongitudeEditText.getText().toString();
 
@@ -92,7 +95,7 @@ public class AddAssetActivity extends AppCompatActivity {
                     return;
                 }
 
-                newAsset = new Asset(name, description, Double.parseDouble(latitude), Double.parseDouble(longitude));
+                newAsset = new Asset(name, description, notes,  Double.parseDouble(latitude), Double.parseDouble(longitude));
                 databaseCallTask = new DatabaseCallTask(AddAssetActivity.this);
                 databaseCallTask.execute("INSERT ASSET", newAsset);
             }
