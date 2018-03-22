@@ -23,7 +23,7 @@
             android:id="@+id/assetName_editText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/assetCurrentLocation_checkBox"
+            android:layout_alignEnd="@+id/assetCurrentLocation_button"
             android:layout_below="@+id/assetPicture_imageView"
             android:layout_marginEnd="75dp"
             android:layout_marginTop="19dp"
@@ -75,15 +75,15 @@
             android:hint="Longitude"
             android:inputType="numberDecimal|numberSigned" />
 
-        <CheckBox
-            android:id="@+id/assetCurrentLocation_checkBox"
+        <Button
+            android:id="@+id/assetCurrentLocation_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/assetLongitude_editText"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="35dp"
-            android:text="Use Current Location" />
+            android:text="Get Current Location" />
 
     </RelativeLayout>
 
