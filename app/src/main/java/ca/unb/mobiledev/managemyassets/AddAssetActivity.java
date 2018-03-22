@@ -1,19 +1,26 @@
 package ca.unb.mobiledev.managemyassets;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
-public class AddAssetActivity extends AppCompatActivity {
+public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private EditText mNameEditText;
     private EditText mDescriptionEditText;
@@ -21,10 +28,11 @@ public class AddAssetActivity extends AppCompatActivity {
     private EditText mLatitudeEditText;
     private EditText mLongitudeEditText;
     private ImageView mAssetPictureImageView;
-    private CheckBox mCurrentLocationCheckBox;
+    private Button mCurrentLocationButton;
     private FloatingActionButton mSaveAssetFab;
 
     private DatabaseCallTask databaseCallTask;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +48,7 @@ public class AddAssetActivity extends AppCompatActivity {
         mLongitudeEditText = findViewById(R.id.assetLongitude_editText);
         mAssetPictureImageView = findViewById(R.id.assetPicture_imageView);
 
-        mCurrentLocationCheckBox = findViewById(R.id.assetCurrentLocation_checkBox);
+        mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
 
         mAssetPictureImageView.setClickable(true);
@@ -50,26 +58,10 @@ public class AddAssetActivity extends AppCompatActivity {
                 Toast.makeText(AddAssetActivity.this, "Implement picture taking function", Toast.LENGTH_SHORT).show();
             }
         });
-        mCurrentLocationCheckBox.setOnClickListener(new View.OnClickListener() {
+        mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mCurrentLocationCheckBox.isChecked()) {
-                    LatLng coordinates = DeviceLocation.getDeviceLocation();
-                    // Grey out the longitude and latitude fields
-                    mLatitudeEditText.setEnabled(false);
-                    mLongitudeEditText.setEnabled(false);
-                    // Put the device's current coordinates in the boxes
-                    mLatitudeEditText.setText(String.valueOf(coordinates.latitude));
-                    mLongitudeEditText.setText(String.valueOf(coordinates.longitude));
-                    // TODO Add a refresh button on the coordinates
-                } else {
-                    // Re-enable the fields
-                    mLatitudeEditText.setEnabled(true);
-                    mLongitudeEditText.setEnabled(true);
-                    // Empty the text fields
-                    mLongitudeEditText.setText("");
-                    mLatitudeEditText.setText("");
-                }
+                requestPermissions();
             }
         });
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +93,72 @@ public class AddAssetActivity extends AppCompatActivity {
                 databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, asset);
             }
         });
+
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        mCurrentLocationButton.setEnabled(true);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        mCurrentLocationButton.setEnabled(false);
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Toast.makeText(this, "Connection to Google Play Services failed", Toast.LENGTH_SHORT).show();
+    }
+
+    public void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        } else {
+            getDeviceLocation();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getDeviceLocation();
+                }
+        }
+    }
+
+    private void getDeviceLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (lastLocation != null) {
+                mLatitudeEditText.setText(String.valueOf(lastLocation.getLatitude()));
+                mLongitudeEditText.setText(String.valueOf(lastLocation.getLongitude()));
+            } else {
+                Toast.makeText(this, "Unable to get location", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     public void databaseCallFinished(Asset asset) {
