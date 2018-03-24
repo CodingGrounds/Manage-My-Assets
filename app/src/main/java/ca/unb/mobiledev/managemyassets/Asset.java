@@ -12,6 +12,7 @@ public class Asset implements Serializable {
     private String name;
     private String description;
     private String notes;
+    private String image;
     private double latitude;
     private double longitude;
 
@@ -23,18 +24,20 @@ public class Asset implements Serializable {
     public static final String NOTES = "notes";
     public static final String LAT = "latitude";
     public static final String LNG = "longitude";
+    public static final String IMAGE = "image";
     public static final String DROP_TABLE_QUERY = "DROP TABLE IF EXISTS assets;";
-    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, notes TEXT, latitude REAL, longitude REAL);";
+    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, notes TEXT, latitude REAL, longitude REAL, image TEXT);";
 
     public Asset() {
     }
 
-    public Asset(String name, String description, String notes, double latitude, double longitude) {
+    public Asset(String name, String description, String notes, double latitude, double longitude, String image) {
         this.name = name;
         this.description = description;
         this.notes = notes;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.image = image;
     }
 
     public long getId() {
@@ -83,6 +86,14 @@ public class Asset implements Serializable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String toString() {
