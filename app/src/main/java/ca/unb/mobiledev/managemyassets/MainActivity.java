@@ -1,6 +1,10 @@
 package ca.unb.mobiledev.managemyassets;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -86,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder viewHolder, int position) {
 
             viewHolder.asset = assetList.get(position);
+            if (viewHolder.asset.getImage() != null) {
+                Bitmap imageBitmap = BitmapFactory.decodeFile(viewHolder.asset.getImage());
+                Drawable drawable = new BitmapDrawable(getResources(), imageBitmap);
+                viewHolder.mAssetTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawable, null);
+            }
             viewHolder.mAssetTextView.setText(Html.fromHtml(assetList.get(position).toString()));
             viewHolder.mAssetTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
