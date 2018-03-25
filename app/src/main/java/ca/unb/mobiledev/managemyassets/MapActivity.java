@@ -98,7 +98,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onInfoWindowClick(Marker marker) {
                 databaseCallTask = new DatabaseCallTask(MapActivity.this);
-                databaseCallTask.execute(DatabaseCallTask.SELECT_ASSET, marker.getPosition());
+                databaseCallTask.execute(DatabaseCallTask.SELECT_ASSET, DatabaseCallTask.MAP_ACTIVITY, marker.getPosition());
             }
         });
 

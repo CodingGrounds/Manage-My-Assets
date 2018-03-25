@@ -59,17 +59,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//          Populate database with test data
-//          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
-//          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
-//          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
-//          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
-
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(assetAdapter);
 
-        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, null);
+        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, DatabaseCallTask.MAIN_ACTIVITY, null);
     }
 
     public void databaseCallFinished(Asset[] assets) {

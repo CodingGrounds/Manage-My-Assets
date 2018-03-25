@@ -113,12 +113,12 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
                 if (isNewAsset) {
                     Asset asset = new Asset(name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-                    databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, asset);
+                    databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
                 }
                 else {
                     // TODO Delete old image if a new one is added
                     Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-                    databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, asset);
+                    databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
                 }
             }
         });
