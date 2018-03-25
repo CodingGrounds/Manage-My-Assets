@@ -2,4 +2,11 @@
     <string name="app_name">Manage My Assets</string>
     <string name="button_text">Map</string>
     <string name="tool_bar">Map View</string>
+    <string name="asset_name">Name</string>
+    <string name="asset_description">Description</string>
+    <string name="asset_notes">Notes</string>
+    <string name="asset_latitude">Latitude</string>
+    <string name="asset_longitude">Longitude</string>
+    <string name="asset_get_location">Get Current Location</string>
+    <string name="asset_image_description">Image of asset</string>
 </resources>
