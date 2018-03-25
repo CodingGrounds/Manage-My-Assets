@@ -31,6 +31,16 @@ public class Asset implements Serializable {
     public Asset() {
     }
 
+    public Asset(long id, String name, String description, String notes, double latitude, double longitude, String image) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.notes = notes;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.image = image;
+    }
+
     public Asset(String name, String description, String notes, double latitude, double longitude, String image) {
         this.name = name;
         this.description = description;

@@ -50,6 +50,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private DatabaseCallTask databaseCallTask;
     private GoogleApiClient mGoogleApiClient;
 
+    private boolean isNewAsset = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             @Override
             public void onClick(View view) {
 
+                long id = 0;
+                if (mNameEditText.getTag() != null)
+                    id = (long) mNameEditText.getTag();
                 String name = mNameEditText.getText().toString();
                 String description = mDescriptionEditText.getText().toString();
                 String notes = mNotesEditText.getText().toString();
@@ -106,8 +111,15 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     return;
                 }
 
-                Asset asset = new Asset(name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-                databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, asset);
+                if (isNewAsset) {
+                    Asset asset = new Asset(name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
+                    databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, asset);
+                }
+                else {
+                    // TODO Delete old image if a new one is added
+                    Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
+                    databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, asset);
+                }
             }
         });
 
@@ -120,6 +132,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         }
 
         if (getIntent().getExtras() != null) {
+            isNewAsset = false;
             Asset asset = (Asset) getIntent().getExtras().get(Asset.OBJECT_NAME);
             if (asset.getImage() != null)
                 mAssetPictureImageView.setImageBitmap(loadFromInternalStorage(asset.getImage()));
@@ -129,6 +142,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             mNotesEditText.setText(asset.getNotes());
             mLatitudeEditText.setText(String.valueOf(asset.getLatitude()));
             mLongitudeEditText.setText(String.valueOf(asset.getLongitude()));
+
+            mNameEditText.setTag(asset.getId());
+            mAssetPictureImageView.setTag(asset.getImage());
         }
     }
 

@@ -52,6 +52,8 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
                     return new Object[]{option, myDatabase.selectAsset((LatLng) params[1])};
                 case INSERT_ASSET:
                     return new Object[]{option, myDatabase.insertAsset((Asset) params[1])};
+                case UPDATE_ASSET:
+                    return new Object[]{option, myDatabase.updateAsset((Asset) params[1])};
                 default:
                     return new Object[0];
             }
@@ -79,6 +81,7 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
                     ((MapActivity) activity).databaseCallFinished((Asset) result[1]);
                     break;
                 case INSERT_ASSET:
+                case UPDATE_ASSET:
                     ((AddAssetActivity) activity).databaseCallFinished((Asset) result[1]);
                     break;
                 default:

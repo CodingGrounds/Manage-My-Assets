@@ -144,23 +144,27 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return selectAsset(result);
     }
 
-    // TODO This doesn't work that great. Fix it sometime
-    public boolean updateAsset(Asset asset) {
+    public Asset updateAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        String whereClause = "latitude = ? AND longitude = ?";
-        String[] whereArgs = {asset.getName(), String.valueOf(asset.getLatitude()), String.valueOf(asset.getLongitude())};
+        String whereClause = "id = ?";
+        String[] whereArgs = {String.valueOf(asset.getId())};
 
-        contentValues.put("name", asset.getName());
-        contentValues.put("description", asset.getDescription());
-        contentValues.put("latitude", asset.getLatitude());
-        contentValues.put("longitude", asset.getLongitude());
+        contentValues.put(Asset.NAME, asset.getName());
+        contentValues.put(Asset.DESCRIPTION, asset.getDescription());
+        contentValues.put(Asset.NOTES, asset.getNotes());
+        contentValues.put(Asset.LAT, asset.getLatitude());
+        contentValues.put(Asset.LNG, asset.getLongitude());
+        contentValues.put(Asset.IMAGE, asset.getImage());
 
         long result = database.update(Asset.TABLE_NAME, contentValues, whereClause, whereArgs);
         database.close();
 
-        return result != -1;
+        if (result > 0)
+            return selectAsset(asset.getId());
+        else
+            return asset;
     }
 
     public boolean deleteAsset(Asset asset) {
