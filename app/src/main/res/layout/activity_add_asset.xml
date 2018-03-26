@@ -85,7 +85,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/colorAccent"
-                android:gravity="bottom"
+                android:gravity="top"
                 android:hint="@string/asset_notes"
                 android:inputType="textMultiLine"
                 android:maxLines="8"
@@ -190,11 +190,46 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/assetViewMap_layout"
+            android:id="@+id/assetViewList_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="120dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/assetViewList_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/cardview_vertical_padding"
+                android:paddingLeft="@dimen/cardview_horizontal_padding"
+                android:paddingRight="@dimen/cardview_horizontal_padding"
+                android:paddingTop="@dimen/cardview_vertical_padding"
+                android:text="@string/asset_list"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorText"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetViewList_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_menu_save"
+                android:tint="@android:color/white"
+                app:backgroundTint="@android:color/holo_green_dark"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/assetViewMap_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="170dp"
             android:layout_marginEnd="8dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -221,6 +256,28 @@
                 android:tint="@android:color/white"
                 app:backgroundTint="@android:color/holo_green_dark"
                 app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/assetViewMapLarge_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="70dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetViewMapLarge_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_dialog_map"
+                android:tint="@android:color/white"
+                android:visibility="invisible"
+                app:backgroundTint="?attr/colorPrimary"
+                app:fabSize="normal" />
 
         </LinearLayout>
 

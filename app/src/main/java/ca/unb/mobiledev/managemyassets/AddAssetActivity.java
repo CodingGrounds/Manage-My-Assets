@@ -49,15 +49,19 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private FloatingActionButton mTakePictureFab;
     private FloatingActionButton mSaveAssetFab;
     private FloatingActionButton mAddMoreFab;
+    private FloatingActionButton mViewListFab;
     private FloatingActionButton mViewMapFab;
+    private FloatingActionButton mViewMapLargeFab;
 
     private LinearLayout mViewMapFabLayout;
+    private LinearLayout mViewListFabLayout;
     private LinearLayout mAddMoreFabLayout;
 
     private DatabaseCallTask databaseCallTask;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean isNewAsset = true;
+    private boolean inEditMode = true;
     private boolean fabMenuExpanded = false;
 
     @Override
@@ -75,13 +79,16 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mAssetPictureImageView = findViewById(R.id.assetPicture_imageView);
 
         mViewMapFabLayout = findViewById(R.id.assetViewMap_layout);
+        mViewListFabLayout = findViewById(R.id.assetViewList_layout);
         mAddMoreFabLayout = findViewById(R.id.assetAddMore_layout);
 
         mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
         mTakePictureFab = findViewById(R.id.assetTakePicture_fab);
         mAddMoreFab = findViewById(R.id.assetAddMore_fab);
+        mViewListFab = findViewById(R.id.assetViewList_fab);
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
+        mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
 
         mTakePictureFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,10 +106,24 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (fabMenuExpanded) {
-                    closeFabSubMenu();
+                if (!inEditMode) {
+                    mNameEditText.setEnabled(true);
+                    mDescriptionEditText.setEnabled(true);
+                    mNotesEditText.setEnabled(true);
+                    mLatitudeEditText.setEnabled(true);
+                    mLongitudeEditText.setEnabled(true);
+                    mTakePictureFab.setVisibility(View.VISIBLE);
+                    mCurrentLocationButton.setVisibility(View.VISIBLE);
+                    mViewMapLargeFab.setVisibility(View.INVISIBLE);
+
+                    mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
+                    inEditMode = true;
                 } else {
-                    openFabSubMenu();
+                    if (fabMenuExpanded) {
+                        closeFabSubMenu();
+                    } else {
+                        openFabSubMenu();
+                    }
                 }
             }
         });
@@ -128,6 +149,20 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
                     mNameEditText.setTag("");
                     mAssetPictureImageView.setTag("");
+                }
+            }
+        });
+        mViewListFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Asset asset = saveAsset();
+
+                if (asset == null) {
+                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Open map activity
+                    Intent intent = new Intent(AddAssetActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
             }
         });
@@ -169,6 +204,20 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
             mNameEditText.setTag(asset.getId());
             mAssetPictureImageView.setTag(asset.getImage());
+
+            // Set the activity to edit mode
+            mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
+            inEditMode = false;
+
+            // Disable or hide objects
+            mNameEditText.setEnabled(false);
+            mDescriptionEditText.setEnabled(false);
+            mNotesEditText.setEnabled(false);
+            mLatitudeEditText.setEnabled(false);
+            mLongitudeEditText.setEnabled(false);
+            mTakePictureFab.setVisibility(View.INVISIBLE);
+            mCurrentLocationButton.setVisibility(View.INVISIBLE);
+            mViewMapLargeFab.setVisibility(View.VISIBLE);
         }
 
         // Hide the additional buttons initially
@@ -253,12 +302,14 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
     private void openFabSubMenu() {
         mAddMoreFabLayout.setVisibility(View.VISIBLE);
+        mViewListFabLayout.setVisibility(View.VISIBLE);
         mViewMapFabLayout.setVisibility(View.VISIBLE);
         fabMenuExpanded = true;
     }
 
     private void closeFabSubMenu() {
         mAddMoreFabLayout.setVisibility(View.INVISIBLE);
+        mViewListFabLayout.setVisibility(View.INVISIBLE);
         mViewMapFabLayout.setVisibility(View.INVISIBLE);
         fabMenuExpanded = false;
     }
@@ -327,7 +378,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             File imageFile = new File(filePath);
             bitmap = BitmapFactory.decodeStream(new FileInputStream(imageFile));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Unable to load photo", Toast.LENGTH_SHORT).show();
         }
 
         return bitmap;
