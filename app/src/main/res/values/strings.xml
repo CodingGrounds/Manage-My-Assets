@@ -9,4 +9,6 @@
     <string name="asset_longitude">Longitude</string>
     <string name="asset_get_location">Get Current Location</string>
     <string name="asset_image_description">Image of asset</string>
+    <string name="asset_map">Save and View on Map</string>
+    <string name="asset_add">Save and Add Another Asset</string>
 </resources>

@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,13 +45,20 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private EditText mLongitudeEditText;
     private ImageView mAssetPictureImageView;
     private Button mCurrentLocationButton;
-    private FloatingActionButton mSaveAssetFab;
+
     private FloatingActionButton mTakePictureFab;
+    private FloatingActionButton mSaveAssetFab;
+    private FloatingActionButton mAddMoreFab;
+    private FloatingActionButton mViewMapFab;
+
+    private LinearLayout mViewMapFabLayout;
+    private LinearLayout mAddMoreFabLayout;
 
     private DatabaseCallTask databaseCallTask;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean isNewAsset = true;
+    private boolean fabMenuExpanded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +74,14 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mLongitudeEditText = findViewById(R.id.assetLongitude_editText);
         mAssetPictureImageView = findViewById(R.id.assetPicture_imageView);
 
+        mViewMapFabLayout = findViewById(R.id.assetViewMap_layout);
+        mAddMoreFabLayout = findViewById(R.id.assetAddMore_layout);
+
         mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
         mTakePictureFab = findViewById(R.id.assetTakePicture_fab);
+        mAddMoreFab = findViewById(R.id.assetAddMore_fab);
+        mViewMapFab = findViewById(R.id.assetViewMap_fab);
 
         mTakePictureFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,46 +92,57 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // TODO Have this button read "Set location" and then provide a list of options to select location
                 requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
             }
         });
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (fabMenuExpanded) {
+                    closeFabSubMenu();
+                } else {
+                    openFabSubMenu();
+                }
+            }
+        });
+        mAddMoreFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Asset asset = saveAsset();
 
-                long id = 0;
-                if (mNameEditText.getTag() != null)
-                    id = (long) mNameEditText.getTag();
-                String name = mNameEditText.getText().toString();
-                String description = mDescriptionEditText.getText().toString();
-                String notes = mNotesEditText.getText().toString();
-                String latitude = mLatitudeEditText.getText().toString();
-                String longitude = mLongitudeEditText.getText().toString();
-                String imagePath = (String) mAssetPictureImageView.getTag();
+                if (asset == null) {
+                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Close menu
+                    closeFabSubMenu();
 
-                if (TextUtils.isEmpty(name)) {
-                    mNameEditText.setError("Name cannot be empty");
-                }
-                if (TextUtils.isEmpty(latitude)) {
-                    mLatitudeEditText.setError("Latitude cannot be empty");
-                }
-                if (TextUtils.isEmpty(longitude)) {
-                    mLongitudeEditText.setError("Longitude cannot be empty");
-                }
+                    // Clear fields
+                    mAssetPictureImageView.setImageResource(R.drawable.ic_default_asset_image);
 
-                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
-                    // Don't attempt to store anything if the correct fields aren't provided
-                    return;
-                }
+                    mNameEditText.setText("");
+                    mDescriptionEditText.setText("");
+                    mNotesEditText.setText("");
+                    mLatitudeEditText.setText("");
+                    mLongitudeEditText.setText("");
 
-                if (isNewAsset) {
-                    Asset asset = new Asset(name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-                    databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
+                    mNameEditText.setTag("");
+                    mAssetPictureImageView.setTag("");
                 }
-                else {
-                    // TODO Delete old image if a new one is added
-                    Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-                    databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
+            }
+        });
+        mViewMapFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Asset asset = saveAsset();
+
+                if (asset == null) {
+                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Open map activity
+                    Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+                    intent.putExtra(Asset.OBJECT_NAME, asset);
+                    startActivity(intent);
                 }
             }
         });
@@ -146,6 +170,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             mNameEditText.setTag(asset.getId());
             mAssetPictureImageView.setTag(asset.getImage());
         }
+
+        // Hide the additional buttons initially
+        closeFabSubMenu();
     }
 
     @Override
@@ -224,6 +251,57 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         }
     }
 
+    private void openFabSubMenu() {
+        mAddMoreFabLayout.setVisibility(View.VISIBLE);
+        mViewMapFabLayout.setVisibility(View.VISIBLE);
+        fabMenuExpanded = true;
+    }
+
+    private void closeFabSubMenu() {
+        mAddMoreFabLayout.setVisibility(View.INVISIBLE);
+        mViewMapFabLayout.setVisibility(View.INVISIBLE);
+        fabMenuExpanded = false;
+    }
+
+    private Asset saveAsset() {
+        long id = 0;
+        if (mNameEditText.getTag() != null)
+            id = (long) mNameEditText.getTag();
+        String name = mNameEditText.getText().toString();
+        String description = mDescriptionEditText.getText().toString();
+        String notes = mNotesEditText.getText().toString();
+        String latitude = mLatitudeEditText.getText().toString();
+        String longitude = mLongitudeEditText.getText().toString();
+        String imagePath = (String) mAssetPictureImageView.getTag();
+
+        if (TextUtils.isEmpty(name)) {
+            mNameEditText.setError("Name cannot be empty");
+        }
+        if (TextUtils.isEmpty(latitude)) {
+            mLatitudeEditText.setError("Latitude cannot be empty");
+        }
+        if (TextUtils.isEmpty(longitude)) {
+            mLongitudeEditText.setError("Longitude cannot be empty");
+        }
+
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
+            // Don't attempt to store anything if the correct fields aren't provided
+            closeFabSubMenu();
+            return null;
+        }
+
+        Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
+
+        if (isNewAsset) {
+            databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
+        } else {
+            // TODO Delete old image if a new one is added
+            databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
+        }
+
+        return asset;
+    }
+
     private String saveToInternalStorage(Bitmap bitmap) {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss-SSS", Locale.CANADA).format(new Date());
         String fileName = "MMA_" + timestamp + ".jpg";
@@ -278,8 +356,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
     public void databaseCallFinished(Asset asset) {
         // TODO Change to allow the user to choose where to navigate to
-        Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
-        intent.putExtra(Asset.OBJECT_NAME, asset);
-        startActivity(intent);
+        return;
     }
 }
