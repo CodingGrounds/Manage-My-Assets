@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -99,14 +98,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onInfoWindowClick(Marker marker) {
                 databaseCallTask = new DatabaseCallTask(MapActivity.this);
-                databaseCallTask.execute("SELECT BY LatLng", marker.getPosition());
+                databaseCallTask.execute(DatabaseCallTask.SELECT_ASSET, DatabaseCallTask.MAP_ACTIVITY, marker.getPosition());
             }
         });
 
     }
 
     public void databaseCallFinished(Asset asset) {
-        Intent detailsIntent = new Intent(MapActivity.this, DetailsActivity.class);
+        Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
         detailsIntent.putExtra(Asset.OBJECT_NAME, asset);
         startActivity(detailsIntent);
     }

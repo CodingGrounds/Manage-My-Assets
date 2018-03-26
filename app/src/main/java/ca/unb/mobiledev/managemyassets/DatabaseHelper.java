@@ -16,7 +16,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper databaseHelper;
     private static final String DATABASE_NAME = "ManageMyAssets.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -62,6 +62,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 asset.setNotes(cursor.getString(3));
                 asset.setLatitude(cursor.getDouble(4));
                 asset.setLongitude(cursor.getDouble(5));
+                asset.setImage(cursor.getString(6));
 
                 assets[assetCount - arrayPosition] = asset;
                 arrayPosition--;
@@ -91,6 +92,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
             asset.setNotes(cursor.getString(3));
             asset.setLatitude(cursor.getDouble(4));
             asset.setLongitude(cursor.getDouble(5));
+            asset.setImage(cursor.getString(6));
         }
 
         database.close();
@@ -116,6 +118,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
             asset.setNotes(cursor.getString(3));
             asset.setLatitude(cursor.getDouble(4));
             asset.setLongitude(cursor.getDouble(5));
+            asset.setImage(cursor.getString(6));
         }
 
         database.close();
@@ -128,11 +131,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put("name", asset.getName());
-        contentValues.put("description", asset.getDescription());
-        contentValues.put("notes", asset.getNotes());
-        contentValues.put("latitude", asset.getLatitude());
-        contentValues.put("longitude", asset.getLongitude());
+        contentValues.put(Asset.NAME, asset.getName());
+        contentValues.put(Asset.DESCRIPTION, asset.getDescription());
+        contentValues.put(Asset.NOTES, asset.getNotes());
+        contentValues.put(Asset.LAT, asset.getLatitude());
+        contentValues.put(Asset.LNG, asset.getLongitude());
+        contentValues.put(Asset.IMAGE, asset.getImage());
 
         long result = database.insert(Asset.TABLE_NAME, null, contentValues);
         database.close();
@@ -140,23 +144,27 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return selectAsset(result);
     }
 
-    // TODO This doesn't work that great. Fix it sometime
-    public boolean updateAsset(Asset asset) {
+    public Asset updateAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        String whereClause = "latitude = ? AND longitude = ?";
-        String[] whereArgs = {asset.getName(), String.valueOf(asset.getLatitude()), String.valueOf(asset.getLongitude())};
+        String whereClause = "id = ?";
+        String[] whereArgs = {String.valueOf(asset.getId())};
 
-        contentValues.put("name", asset.getName());
-        contentValues.put("description", asset.getDescription());
-        contentValues.put("latitude", asset.getLatitude());
-        contentValues.put("longitude", asset.getLongitude());
+        contentValues.put(Asset.NAME, asset.getName());
+        contentValues.put(Asset.DESCRIPTION, asset.getDescription());
+        contentValues.put(Asset.NOTES, asset.getNotes());
+        contentValues.put(Asset.LAT, asset.getLatitude());
+        contentValues.put(Asset.LNG, asset.getLongitude());
+        contentValues.put(Asset.IMAGE, asset.getImage());
 
         long result = database.update(Asset.TABLE_NAME, contentValues, whereClause, whereArgs);
         database.close();
 
-        return result != -1;
+        if (result > 0)
+            return selectAsset(asset.getId());
+        else
+            return asset;
     }
 
     public boolean deleteAsset(Asset asset) {
