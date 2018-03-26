@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,6 +29,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static ca.unb.mobiledev.managemyassets.Asset.LAT;
+import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
 /**
  * Created by laver on 2018-02-18.
@@ -47,6 +51,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker directionsMarker;
     private int locationCounter;
     private DatabaseCallTask databaseCallTask;
+    FragmentManager fm = getSupportFragmentManager();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +81,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
 
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Log.i("OnMapClick", " " + latLng.toString());
+                AddDFragment addDFragment = new AddDFragment();
+                Bundle bundle = new Bundle();
+                bundle.putDouble(LAT, latLng.latitude);
+                bundle.putDouble(LNG, latLng.longitude);
+                addDFragment.setArguments(bundle);
+                addDFragment.show(fm, "Add Dialog");
+            }
+        });
     }
 
     private void updateMapAssets() {
