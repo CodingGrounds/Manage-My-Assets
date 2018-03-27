@@ -1,23 +1,32 @@
 package ca.unb.mobiledev.managemyassets;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -99,8 +109,64 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO Have this button read "Set location" and then provide a list of options to select location
-                requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mCurrentLocationButton);
+                popupMenu.getMenuInflater().inflate(R.menu.get_location_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.currentLocation_item:
+                                requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                                return true;
+                            case R.id.addressLocation_item:
+                                // TODO Have an input to get address from user
+                                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog));
+                                final EditText addressInput = new EditText(getApplicationContext());
+
+                                addressInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                                builder.setView(addressInput);
+                                builder.setTitle("Enter address");
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Geocoder coder = new Geocoder(AddAssetActivity.this, Locale.getDefault());
+                                        List<Address> address;
+                                        try {
+                                            address = coder.getFromLocationName(addressInput.getText().toString(), 20);
+                                            Log.i("Add from address", address.toString());
+                                            Address location = address.get(0);
+                                            mLatitudeEditText.setText(String.valueOf(location.getLatitude()));
+                                            mLongitudeEditText.setText(String.valueOf(location.getLongitude()));
+                                        } catch (IOException e) {
+                                            Toast.makeText(getApplicationContext(), "Unable to get location from address", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+                                builder.show();
+
+                                // TODO Deal with permissions
+
+
+                                Toast.makeText(getApplicationContext(), "Address", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.mapLocation_item:
+                                Toast.makeText(getApplicationContext(), "Map", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.manualLocation_item:
+                                Toast.makeText(getApplicationContext(), "Manual", Toast.LENGTH_SHORT).show();
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+                popupMenu.show();
             }
         });
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
