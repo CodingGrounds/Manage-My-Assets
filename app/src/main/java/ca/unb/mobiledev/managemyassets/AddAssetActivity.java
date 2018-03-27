@@ -181,6 +181,21 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                 }
             }
         });
+        mViewMapLargeFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Asset asset = saveAsset();
+
+                if (asset == null) {
+                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Open map activity
+                    Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+                    intent.putExtra(Asset.OBJECT_NAME, asset);
+                    startActivity(intent);
+                }
+            }
+        });
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
