@@ -53,6 +53,7 @@
                 android:background="@color/colorAccent"
                 android:hint="@string/asset_name"
                 android:inputType="text|textCapWords|textCapSentences"
+                android:padding="4dp"
                 android:textColor="@color/colorText"
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
@@ -70,6 +71,7 @@
                 android:background="@color/colorAccent"
                 android:hint="@string/asset_description"
                 android:inputType="text|textCapSentences"
+                android:padding="4dp"
                 android:textColor="@color/colorText"
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
@@ -90,6 +92,7 @@
                 android:inputType="textMultiLine"
                 android:maxLines="8"
                 android:minLines="4"
+                android:padding="4dp"
                 android:textColor="@color/colorText"
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
@@ -104,16 +107,18 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:background="@color/colorAccent"
+                android:background="@color/colorBackground"
+                android:enabled="false"
                 android:hint="@string/asset_longitude"
                 android:inputType="text|numberSigned|numberDecimal"
+                android:padding="4dp"
                 android:textColor="@color/colorText"
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetNotes_editText" />
+                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
 
             <EditText
                 android:id="@+id/assetLatitude_editText"
@@ -122,13 +127,16 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:background="@color/colorAccent"
+                android:background="@color/colorBackground"
+                android:enabled="false"
                 android:hint="@string/asset_latitude"
                 android:inputType="text|numberSigned|numberDecimal"
+                android:padding="4dp"
                 android:textColor="@color/colorText"
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/assetLongitude_editText" />
 
@@ -145,7 +153,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
+                app:layout_constraintTop_toBottomOf="@+id/assetNotes_editText" />
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
