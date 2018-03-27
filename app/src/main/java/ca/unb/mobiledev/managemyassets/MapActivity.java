@@ -16,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -79,19 +80,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else if (currentLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
+        addMapClickListener(false);
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                Log.i("OnMapClick", " " + latLng.toString());
-                AddDFragment addDFragment = new AddDFragment();
-                Bundle bundle = new Bundle();
-                bundle.putDouble(LAT, latLng.latitude);
-                bundle.putDouble(LNG, latLng.longitude);
-                addDFragment.setArguments(bundle);
-                addDFragment.show(fm, "Add Dialog");
-            }
-        });
     }
 
     private void updateMapAssets() {
@@ -107,6 +97,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 marker.showInfoWindow();
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 addDirectionsButton(marker);
+                mMap.setOnMapClickListener(null);
                 return true;
             }
         });
@@ -120,6 +111,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+    }
+
+    //Flag for window close or not
+    private void addMapClickListener(final boolean flag){
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(!flag){
+                    Log.i("OnMapClick", " " + latLng.toString());
+                    AddDFragment addDFragment = new AddDFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(LAT, latLng.latitude);
+                    bundle.putDouble(LNG, latLng.longitude);
+                    addDFragment.setArguments(bundle);
+                    addDFragment.show(fm, "Add Dialog");
+                }
+            }
+        });
     }
 
     public void databaseCallFinished(Asset asset) {
@@ -140,12 +150,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
+
+
         //DON'T Know if u want this here
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
             @Override
             public void onInfoWindowClose(Marker marker) {
-
                 directionFab.setVisibility(View.INVISIBLE);
+                addMapClickListener(true);
                 marker.hideInfoWindow();
             }
         });

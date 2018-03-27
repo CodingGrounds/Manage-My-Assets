@@ -6,13 +6,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +33,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static ca.unb.mobiledev.managemyassets.Asset.ACTION;
+import static ca.unb.mobiledev.managemyassets.Asset.LAT;
+import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -64,6 +69,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private boolean inEditMode = true;
     private boolean fabMenuExpanded = false;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +96,17 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mViewListFab = findViewById(R.id.assetViewList_fab);
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
         mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
+
+
+        Intent mapIntent = getIntent();
+        double mapLat = mapIntent.getDoubleExtra(LAT, 0);
+        double mapLon = mapIntent.getDoubleExtra(LNG, 0);
+        Log.i("Map", " " + mapLon + "'");
+        if(mapLat != 0 && mapLon != 0){
+            mLatitudeEditText.setText(""+mapLat);
+            mLongitudeEditText.setText(""+mapLon);
+        }
+
 
         mTakePictureFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,7 +208,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     .build();
         }
 
-        if (getIntent().getExtras() != null) {
+
+
+        if ( getIntent().getStringExtra(ACTION) == null && getIntent().getExtras() != null) {
             isNewAsset = false;
             Asset asset = (Asset) getIntent().getExtras().get(Asset.OBJECT_NAME);
             if (asset.getImage() != null)

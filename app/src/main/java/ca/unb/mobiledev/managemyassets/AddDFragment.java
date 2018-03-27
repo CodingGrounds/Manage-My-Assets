@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
+import static ca.unb.mobiledev.managemyassets.Asset.ACTION;
 import static ca.unb.mobiledev.managemyassets.Asset.LAT;
 import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
@@ -24,10 +25,11 @@ public class AddDFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i("Dialog", "ADD");
-                Intent detailsIntent = new Intent(getActivity(), AddAssetActivity.class);
-                detailsIntent.putExtra(LAT, (double) getArguments().get(LAT));
-                detailsIntent.putExtra(LNG, (double) getArguments().get(LNG));
-                startActivity(detailsIntent);
+                Intent addAsset = new Intent(getActivity(), AddAssetActivity.class);
+                addAsset.putExtra(LAT, (double) getArguments().get(LAT));
+                addAsset.putExtra(LNG, (double) getArguments().get(LNG));
+                addAsset.putExtra(ACTION,  "mapAdd");
+                startActivity(addAsset);
             }
         })
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
