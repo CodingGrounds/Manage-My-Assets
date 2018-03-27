@@ -4,97 +4,303 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context="ca.unb.mobiledev.managemyassets.MainActivity">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/assetPicture_imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="18dp"
-            app:srcCompat="@drawable/common_google_signin_btn_icon_dark" />
-
-        <EditText
-            android:id="@+id/assetName_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/assetCurrentLocation_button"
-            android:layout_below="@+id/assetPicture_imageView"
-            android:layout_marginEnd="75dp"
-            android:layout_marginTop="19dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:hint="Name" />
-
-        <EditText
-            android:id="@+id/assetDescription_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/assetName_editText"
-            android:layout_below="@+id/assetName_editText"
-            android:layout_marginTop="10dp"
-            android:ems="10"
-            android:inputType="textMultiLine"
-            android:hint="Description" />
-
-        <EditText
-            android:id="@+id/assetNotes_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/assetDescription_editText"
-            android:layout_below="@+id/assetDescription_editText"
-            android:layout_marginTop="10dp"
-            android:ems="10"
-            android:inputType="textMultiLine"
-            android:hint="Notes" />
-
-        <EditText
-            android:id="@+id/assetLatitude_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/assetLongitude_editText"
-            android:layout_below="@+id/assetNotes_editText"
-            android:layout_marginTop="14dp"
-            android:ems="10"
-            android:hint="Latitude"
-            android:inputType="numberDecimal|numberSigned" />
-
-        <EditText
-            android:id="@+id/assetLongitude_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/assetDescription_editText"
-            android:layout_below="@+id/assetLatitude_editText"
-            android:layout_marginTop="13dp"
-            android:ems="10"
-            android:hint="Longitude"
-            android:inputType="numberDecimal|numberSigned" />
-
-        <Button
-            android:id="@+id/assetCurrentLocation_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/assetLongitude_editText"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="35dp"
-            android:text="Get Current Location" />
-
-    </RelativeLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/assetSave_fab"
-        android:layout_width="wrap_content"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:tint="@android:color/white"
-        android:backgroundTint="@color/colorPrimary"
-        android:src="@android:drawable/ic_menu_save" />
+        android:fillViewport="false"
+        android:orientation="vertical">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="512dp">
+
+            <ImageView
+                android:id="@+id/assetPicture_imageView"
+                android:layout_width="0dp"
+                android:layout_height="183dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/asset_image_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_default_asset_image" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetTakePicture_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="105dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@android:drawable/ic_menu_camera"
+                android:tint="@color/colorText"
+                app:fabSize="normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.956"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.395" />
+
+            <EditText
+                android:id="@+id/assetName_editText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="32dp"
+                android:background="@color/colorAccent"
+                android:hint="@string/asset_name"
+                android:inputType="text|textCapWords|textCapSentences"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetPicture_imageView" />
+
+            <EditText
+                android:id="@+id/assetDescription_editText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorAccent"
+                android:hint="@string/asset_description"
+                android:inputType="text|textCapSentences"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetName_editText" />
+
+            <EditText
+                android:id="@+id/assetNotes_editText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorAccent"
+                android:gravity="top"
+                android:hint="@string/asset_notes"
+                android:inputType="textMultiLine"
+                android:maxLines="8"
+                android:minLines="4"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetDescription_editText" />
+
+            <EditText
+                android:id="@+id/assetLongitude_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorAccent"
+                android:hint="@string/asset_longitude"
+                android:inputType="text|numberSigned|numberDecimal"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
+
+            <EditText
+                android:id="@+id/assetLatitude_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorAccent"
+                android:hint="@string/asset_latitude"
+                android:inputType="text|numberSigned|numberDecimal"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetNotes_editText" />
+
+            <Button
+                android:id="@+id/assetCurrentLocation_button"
+                android:layout_width="124dp"
+                android:layout_height="57dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorAccent"
+                android:text="@string/asset_get_location"
+                android:textColor="@color/colorText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetNotes_editText" />
+
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fabFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <LinearLayout
+            android:id="@+id/assetAddMore_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="70dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/assetAddMore_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/cardview_vertical_padding"
+                android:paddingLeft="@dimen/cardview_horizontal_padding"
+                android:paddingRight="@dimen/cardview_horizontal_padding"
+                android:paddingTop="@dimen/cardview_vertical_padding"
+                android:text="@string/asset_add"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorText"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetAddMore_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_input_add"
+                android:tint="@android:color/white"
+                app:backgroundTint="@android:color/holo_green_dark"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/assetViewList_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="120dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/assetViewList_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/cardview_vertical_padding"
+                android:paddingLeft="@dimen/cardview_horizontal_padding"
+                android:paddingRight="@dimen/cardview_horizontal_padding"
+                android:paddingTop="@dimen/cardview_vertical_padding"
+                android:text="@string/asset_list"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorText"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetViewList_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_menu_save"
+                android:tint="@android:color/white"
+                app:backgroundTint="@android:color/holo_green_dark"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/assetViewMap_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="170dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/fabLabelViewMap_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/cardview_vertical_padding"
+                android:paddingLeft="@dimen/cardview_horizontal_padding"
+                android:paddingRight="@dimen/cardview_horizontal_padding"
+                android:paddingTop="@dimen/cardview_vertical_padding"
+                android:text="@string/asset_map"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorText"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetViewMap_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_dialog_map"
+                android:tint="@android:color/white"
+                app:backgroundTint="@android:color/holo_green_dark"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/assetViewMapLarge_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="70dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetViewMapLarge_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_dialog_map"
+                android:tint="@android:color/white"
+                android:visibility="invisible"
+                app:backgroundTint="?attr/colorPrimary"
+                app:fabSize="normal" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutFabSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/assetSave_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:scaleType="center"
+                android:src="@android:drawable/ic_menu_save"
+                android:tint="@android:color/white"
+                app:backgroundTint="?attr/colorPrimary"
+                app:fabSize="normal" />
+
+        </LinearLayout>
+    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>

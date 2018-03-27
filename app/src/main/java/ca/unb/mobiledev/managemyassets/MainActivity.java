@@ -1,6 +1,10 @@
 package ca.unb.mobiledev.managemyassets;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -55,17 +59,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//          Populate database with test data
-//          databaseHelper.insertAsset(new Asset("UNB", "This place sucks", 45.944569, -66.641527 ));
-//          databaseHelper.insertAsset(new Asset("North Side", "This place is the worst", 45.979458, -66.655975));
-//          databaseHelper.insertAsset(new Asset("South Side", "Up Towns nice", 45.939981, -66.666241));
-//          databaseHelper.insertAsset(new Asset("Harvey", "Land of the free, hope of the brave", 45.736118, -66.997903));
-
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(assetAdapter);
 
-        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, null);
+        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, DatabaseCallTask.MAIN_ACTIVITY, null);
     }
 
     public void databaseCallFinished(Asset[] assets) {
@@ -86,11 +84,16 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder viewHolder, int position) {
 
             viewHolder.asset = assetList.get(position);
+            if (viewHolder.asset.getImage() != null) {
+                Bitmap imageBitmap = BitmapFactory.decodeFile(viewHolder.asset.getImage());
+                Drawable drawable = new BitmapDrawable(getResources(), imageBitmap);
+                viewHolder.mAssetTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawable, null);
+            }
             viewHolder.mAssetTextView.setText(Html.fromHtml(assetList.get(position).toString()));
             viewHolder.mAssetTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                    Intent intent = new Intent(MainActivity.this, AddAssetActivity.class);
                     intent.putExtra(Asset.OBJECT_NAME, viewHolder.asset);
                     startActivity(intent);
                 }
