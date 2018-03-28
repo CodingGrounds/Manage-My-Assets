@@ -129,7 +129,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                                 addressInput.setTextColor(getResources().getColor(R.color.colorText));
                                 final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog))
                                         .setView(addressInput)
-                                        .setTitle("Enter address")
+                                        .setTitle("Enter Address or Postal Code")
                                         .setPositiveButton("OK", null)
                                         .setNegativeButton("Cancel", null)
                                         .create();
