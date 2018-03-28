@@ -113,6 +113,12 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
+                        // Disable coordinate inputs and make them blend into the background
+                        mLatitudeEditText.setEnabled(false);
+                        mLongitudeEditText.setEnabled(false);
+                        mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+                        mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+
                         switch (menuItem.getItemId()) {
                             case R.id.currentLocation_item:
                                 requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
@@ -166,15 +172,16 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                                 alertDialog.show();
 
                                 // TODO Deal with permissions
-
-
-                                Toast.makeText(getApplicationContext(), "Address", Toast.LENGTH_SHORT).show();
                                 return true;
                             case R.id.mapLocation_item:
                                 Toast.makeText(getApplicationContext(), "Map", Toast.LENGTH_SHORT).show();
                                 return true;
                             case R.id.manualLocation_item:
-                                Toast.makeText(getApplicationContext(), "Manual", Toast.LENGTH_SHORT).show();
+                                // Enable the coordinate inputs and change colour to match other inputs
+                                mLatitudeEditText.setEnabled(true);
+                                mLongitudeEditText.setEnabled(true);
+                                mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                                mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
                                 return true;
                             default:
                                 return false;
