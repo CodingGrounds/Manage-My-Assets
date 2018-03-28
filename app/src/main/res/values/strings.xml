@@ -13,7 +13,7 @@
     <string name="asset_add">Add Another Asset</string>
     <string name="asset_list">Return to List</string>
     <string name="location_current">Use Device Location</string>
-    <string name="location_manual">Enter Coordinates</string>
-    <string name="location_address">Use Address</string>
-    <string name="location_map">Use Location on Map</string>
+    <string name="location_manual">Enter Coordinates Manually</string>
+    <string name="location_address">Use Address or Postal Code</string>
+    <string name="location_map">Select Location on Map</string>
 </resources>

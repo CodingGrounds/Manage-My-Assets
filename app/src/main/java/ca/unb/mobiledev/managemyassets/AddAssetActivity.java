@@ -44,6 +44,7 @@ import java.util.Locale;
 
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    public static final String INTENT_NEW_ASSET = "edit_mode";
     private static final int REQUEST_CAPTURE_IMAGE = 1;
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
 
@@ -174,7 +175,19 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                                 // TODO Deal with permissions
                                 return true;
                             case R.id.mapLocation_item:
-                                Toast.makeText(getApplicationContext(), "Map", Toast.LENGTH_SHORT).show();
+                                Asset asset = new Asset();
+                                Intent intent = new Intent(AddAssetActivity.this, GetLocationMapsActivity.class);
+                                // Store the current input fields so that they can be restored
+                                if (mNameEditText.getTag() != null)
+                                    asset.setId((long) mNameEditText.getTag());
+                                if (mAssetPictureImageView.getTag() != null)
+                                    asset.setImage((String) mAssetPictureImageView.getTag());
+                                asset.setName(mNameEditText.getText().toString());
+                                asset.setDescription(mDescriptionEditText.getText().toString());
+                                asset.setNotes(mNotesEditText.getText().toString());
+
+                                intent.putExtra(Asset.OBJECT_NAME, asset);
+                                startActivity(intent);
                                 return true;
                             case R.id.manualLocation_item:
                                 // Enable the coordinate inputs and change colour to match other inputs
@@ -200,7 +213,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     mNotesEditText.setEnabled(true);
                     mTakePictureFab.setVisibility(View.VISIBLE);
                     mCurrentLocationButton.setVisibility(View.VISIBLE);
-                    mViewMapLargeFab.setVisibility(View.INVISIBLE);
+                    mViewMapLargeFab.setVisibility(View.GONE);
 
                     mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
                     inEditMode = true;
@@ -292,7 +305,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         }
 
         if (getIntent().getExtras() != null) {
-            isNewAsset = false;
+            inEditMode = getIntent().getBooleanExtra(INTENT_NEW_ASSET, true);
             Asset asset = (Asset) getIntent().getExtras().get(Asset.OBJECT_NAME);
             if (asset.getImage() != null)
                 mAssetPictureImageView.setImageBitmap(loadFromInternalStorage(asset.getImage()));
@@ -307,16 +320,17 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             mAssetPictureImageView.setTag(asset.getImage());
 
             // Set the activity to edit mode
-            mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
-            inEditMode = false;
-
-            // Disable or hide objects
-            mNameEditText.setEnabled(false);
-            mDescriptionEditText.setEnabled(false);
-            mNotesEditText.setEnabled(false);
-            mTakePictureFab.setVisibility(View.INVISIBLE);
-            mCurrentLocationButton.setVisibility(View.INVISIBLE);
-            mViewMapLargeFab.setVisibility(View.VISIBLE);
+            if (!inEditMode) {
+                isNewAsset = false;
+                // Disable or hide objects
+                mNameEditText.setEnabled(false);
+                mDescriptionEditText.setEnabled(false);
+                mNotesEditText.setEnabled(false);
+                mTakePictureFab.setVisibility(View.INVISIBLE);
+                mCurrentLocationButton.setVisibility(View.GONE);
+                mViewMapLargeFab.setVisibility(View.VISIBLE);
+                mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
+            }
         }
 
         // Hide the additional buttons initially
