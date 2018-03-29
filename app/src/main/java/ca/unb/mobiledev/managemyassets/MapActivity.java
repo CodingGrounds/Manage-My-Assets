@@ -134,6 +134,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void databaseCallFinished(Asset asset) {
         Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
         detailsIntent.putExtra(OBJECT_NAME, asset);
+        detailsIntent.putExtra(AddAssetActivity.INTENT_NEW_ASSET, false);
         startActivity(detailsIntent);
     }
 
