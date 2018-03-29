@@ -48,6 +48,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ca.unb.mobiledev.managemyassets.MainActivity" />
         </activity>
+        <activity
+            android:name=".GetLocationMapsActivity"
+            android:parentActivityName=".AddAssetActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.unb.mobiledev.managemyassets.AddAssetActivity" />
+        </activity>
     </application>
 
 </manifest>

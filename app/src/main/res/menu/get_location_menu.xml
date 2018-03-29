@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/currentLocation_item"
+        android:title="@string/location_current" />
+
+    <item
+        android:id="@+id/addressLocation_item"
+        android:title="@string/location_address" />
+
+    <item
+        android:id="@+id/mapLocation_item"
+        android:title="@string/location_map" />
+
+    <item
+        android:id="@+id/manualLocation_item"
+        android:title="@string/location_manual" />
+</menu>

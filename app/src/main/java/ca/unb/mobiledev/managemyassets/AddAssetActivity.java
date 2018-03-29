@@ -1,16 +1,20 @@
 package ca.unb.mobiledev.managemyassets;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -32,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static ca.unb.mobiledev.managemyassets.Asset.ACTION;
@@ -40,6 +46,7 @@ import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    public static final String INTENT_NEW_ASSET = "edit_mode";
     private static final int REQUEST_CAPTURE_IMAGE = 1;
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
 
@@ -68,8 +75,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private boolean isNewAsset = true;
     private boolean inEditMode = true;
     private boolean fabMenuExpanded = false;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,8 +122,99 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO Have this button read "Set location" and then provide a list of options to select location
-                requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mCurrentLocationButton);
+                popupMenu.getMenuInflater().inflate(R.menu.get_location_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        // Disable coordinate inputs and make them blend into the background
+                        mLatitudeEditText.setEnabled(false);
+                        mLongitudeEditText.setEnabled(false);
+                        mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+                        mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+
+                        switch (menuItem.getItemId()) {
+                            case R.id.currentLocation_item:
+                                requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                                return true;
+                            case R.id.addressLocation_item:
+                                final EditText addressInput = new EditText(getApplicationContext());
+                                addressInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                                addressInput.setTextColor(getResources().getColor(R.color.colorText));
+                                final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog))
+                                        .setView(addressInput)
+                                        .setTitle("Enter Address or Postal Code")
+                                        .setPositiveButton("OK", null)
+                                        .setNegativeButton("Cancel", null)
+                                        .create();
+
+                                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                    @Override
+                                    public void onShow(DialogInterface dialogInterface) {
+                                        Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                        okButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                Geocoder coder = new Geocoder(AddAssetActivity.this, Locale.getDefault());
+                                                final List<Address> addresses;
+                                                try {
+                                                    String addressString = addressInput.getText().toString();
+                                                    addresses = coder.getFromLocationName(addressString, 100);
+                                                    if (!addresses.isEmpty()) {
+                                                        if (addresses.size() > 1) {
+                                                            // More than one result found. Alert the user
+                                                            addressInput.setError("More than one location found. Please provide more detail");
+                                                            addressInput.setText(addressString);
+                                                        } else {
+                                                            // Only one result found, grab the coordinates
+                                                            Address location = addresses.get(0);
+                                                            mLatitudeEditText.setText(String.valueOf(location.getLatitude()));
+                                                            mLongitudeEditText.setText(String.valueOf(location.getLongitude()));
+                                                            alertDialog.dismiss();
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(AddAssetActivity.this, "No address found", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } catch (IOException e) {
+                                                    Toast.makeText(getApplicationContext(), "Unable to get location from address", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+
+                                alertDialog.show();
+
+                                // TODO Deal with permissions
+                                return true;
+                            case R.id.mapLocation_item:
+                                Asset asset = new Asset();
+                                Intent intent = new Intent(AddAssetActivity.this, GetLocationMapsActivity.class);
+                                // Store the current input fields so that they can be restored
+                                if (mNameEditText.getTag() != null)
+                                    asset.setId((long) mNameEditText.getTag());
+                                if (mAssetPictureImageView.getTag() != null)
+                                    asset.setImage((String) mAssetPictureImageView.getTag());
+                                asset.setName(mNameEditText.getText().toString());
+                                asset.setDescription(mDescriptionEditText.getText().toString());
+                                asset.setNotes(mNotesEditText.getText().toString());
+
+                                intent.putExtra(Asset.OBJECT_NAME, asset);
+                                startActivity(intent);
+                                return true;
+                            case R.id.manualLocation_item:
+                                // Enable the coordinate inputs and change colour to match other inputs
+                                mLatitudeEditText.setEnabled(true);
+                                mLongitudeEditText.setEnabled(true);
+                                mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                                mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+                popupMenu.show();
             }
         });
         mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
@@ -199,6 +295,21 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                 }
             }
         });
+        mViewMapLargeFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Asset asset = saveAsset();
+
+                if (asset == null) {
+                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Open map activity
+                    Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
+                    intent.putExtra(Asset.OBJECT_NAME, asset);
+                    startActivity(intent);
+                }
+            }
+        });
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -208,10 +319,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     .build();
         }
 
-
-
-        if ( getIntent().getStringExtra(ACTION) == null && getIntent().getExtras() != null) {
-            isNewAsset = false;
+        if (getIntent().getExtras() != null) {
+            inEditMode = getIntent().getBooleanExtra(INTENT_NEW_ASSET, true);
             Asset asset = (Asset) getIntent().getExtras().get(Asset.OBJECT_NAME);
             if (asset.getImage() != null)
                 mAssetPictureImageView.setImageBitmap(loadFromInternalStorage(asset.getImage()));
@@ -226,18 +335,17 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             mAssetPictureImageView.setTag(asset.getImage());
 
             // Set the activity to edit mode
-            mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
-            inEditMode = false;
-
-            // Disable or hide objects
-            mNameEditText.setEnabled(false);
-            mDescriptionEditText.setEnabled(false);
-            mNotesEditText.setEnabled(false);
-            mLatitudeEditText.setEnabled(false);
-            mLongitudeEditText.setEnabled(false);
-            mTakePictureFab.setVisibility(View.INVISIBLE);
-            mCurrentLocationButton.setVisibility(View.INVISIBLE);
-            mViewMapLargeFab.setVisibility(View.VISIBLE);
+            if (!inEditMode) {
+                isNewAsset = false;
+                // Disable or hide objects
+                mNameEditText.setEnabled(false);
+                mDescriptionEditText.setEnabled(false);
+                mNotesEditText.setEnabled(false);
+                mTakePictureFab.setVisibility(View.INVISIBLE);
+                mCurrentLocationButton.setVisibility(View.GONE);
+                mViewMapLargeFab.setVisibility(View.VISIBLE);
+                mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
+            }
         }
 
         // Hide the additional buttons initially

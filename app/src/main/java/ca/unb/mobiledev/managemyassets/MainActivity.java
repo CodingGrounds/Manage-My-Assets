@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, AddAssetActivity.class);
                     intent.putExtra(Asset.OBJECT_NAME, viewHolder.asset);
+                    intent.putExtra(AddAssetActivity.INTENT_NEW_ASSET, false);
                     startActivity(intent);
                 }
             });

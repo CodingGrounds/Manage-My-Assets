@@ -7,9 +7,13 @@
     <string name="asset_notes">Notes</string>
     <string name="asset_latitude">Latitude</string>
     <string name="asset_longitude">Longitude</string>
-    <string name="asset_get_location">Get Current Location</string>
+    <string name="asset_get_location">Set Location</string>
     <string name="asset_image_description">Image of asset</string>
     <string name="asset_map">View on Map</string>
     <string name="asset_add">Add Another Asset</string>
     <string name="asset_list">Return to List</string>
+    <string name="location_current">Use Device Location</string>
+    <string name="location_manual">Enter Coordinates Manually</string>
+    <string name="location_address">Use Address or Postal Code</string>
+    <string name="location_map">Select Location on Map</string>
 </resources>
