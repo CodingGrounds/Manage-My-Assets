@@ -8,9 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
-import static ca.unb.mobiledev.managemyassets.Asset.ACTION;
-import static ca.unb.mobiledev.managemyassets.Asset.LAT;
-import static ca.unb.mobiledev.managemyassets.Asset.LNG;
+import static ca.unb.mobiledev.managemyassets.AddAssetActivity.INTENT_NEW_ASSET;
+import static ca.unb.mobiledev.managemyassets.Asset.OBJECT_NAME;
 
 /**
  * Created by laver on 2018-03-25.
@@ -26,9 +25,8 @@ public class AddDFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 Log.i("Dialog", "ADD");
                 Intent addAsset = new Intent(getActivity(), AddAssetActivity.class);
-                addAsset.putExtra(LAT, (double) getArguments().get(LAT));
-                addAsset.putExtra(LNG, (double) getArguments().get(LNG));
-                addAsset.putExtra(ACTION,  "mapAdd");
+                addAsset.putExtra(OBJECT_NAME, (Asset) getArguments().get(OBJECT_NAME));
+                addAsset.putExtra(INTENT_NEW_ASSET,  true);
                 startActivity(addAsset);
             }
         })

@@ -30,8 +30,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static ca.unb.mobiledev.managemyassets.Asset.LAT;
-import static ca.unb.mobiledev.managemyassets.Asset.LNG;
+import static ca.unb.mobiledev.managemyassets.Asset.OBJECT_NAME;
 
 /**
  * Created by laver on 2018-02-18.
@@ -62,7 +61,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         directionFab = findViewById(R.id.directions_fab);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-        detailAsset = (Asset) getIntent().getSerializableExtra(Asset.OBJECT_NAME);
+        detailAsset = (Asset) getIntent().getSerializableExtra(OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapActivity.this);
@@ -123,8 +122,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Log.i("OnMapClick", " " + latLng.toString());
                     AddDFragment addDFragment = new AddDFragment();
                     Bundle bundle = new Bundle();
-                    bundle.putDouble(LAT, latLng.latitude);
-                    bundle.putDouble(LNG, latLng.longitude);
+                    Asset newAsset = new Asset(latLng.latitude, latLng.longitude);
+                    bundle.putSerializable(OBJECT_NAME, newAsset);
                     addDFragment.setArguments(bundle);
                     addDFragment.show(fm, "Add Dialog");
                 }
@@ -134,7 +133,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void databaseCallFinished(Asset asset) {
         Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
-        detailsIntent.putExtra(Asset.OBJECT_NAME, asset);
+        detailsIntent.putExtra(OBJECT_NAME, asset);
         startActivity(detailsIntent);
     }
 

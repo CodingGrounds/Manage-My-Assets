@@ -16,8 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,7 +43,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static ca.unb.mobiledev.managemyassets.Asset.ACTION;
 import static ca.unb.mobiledev.managemyassets.Asset.LAT;
 import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
