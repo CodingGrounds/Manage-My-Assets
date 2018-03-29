@@ -114,7 +114,6 @@ public class GetLocationMapsActivity extends AppCompatActivity implements OnMapR
             if (location != null) {
                 mLocationListener.onLocationChanged(location);
             }
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, mLocationListener);
         }
     }
 }
