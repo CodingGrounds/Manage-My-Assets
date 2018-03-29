@@ -1,6 +1,5 @@
 package ca.unb.mobiledev.managemyassets;
 
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -36,7 +35,6 @@ import static ca.unb.mobiledev.managemyassets.Asset.OBJECT_NAME;
  * Created by laver on 2018-02-18.
  */
 
-
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private DatabaseHelper databaseHelper;
@@ -51,7 +49,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private int locationCounter;
     private DatabaseCallTask databaseCallTask;
     FragmentManager fm = getSupportFragmentManager();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,16 +77,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
         addMapClickListener(false);
-
     }
 
     private void updateMapAssets() {
-
         // Add all assets from the database to the map
         for (Asset asset : assetList) {
             mMap.addMarker(new MarkerOptions().position(new LatLng(asset.getLatitude(), asset.getLongitude())).title(asset.getName()).snippet(asset.getDescription()));
         }
-
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -100,8 +94,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 return true;
             }
         });
-
-
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -114,7 +106,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //Flag for window close or not
     private void addMapClickListener(final boolean flag){
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -150,8 +141,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
-
-
         //DON'T Know if u want this here
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
             @Override
@@ -161,7 +150,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 marker.hideInfoWindow();
             }
         });
-
     }
 
     //Method for checking current location
@@ -170,7 +158,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         currentLocation = latLng;
         //Only when no element is clicked
-
         if (detailAsset == null && locationCounter == 0) {
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
@@ -193,6 +180,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setCurrentLocationEnabled();
+            }
+        }
+    }
+
     //Helper method for setting location and checking permissions
     private void setCurrentLocationEnabled() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -211,5 +207,4 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
-
 }
