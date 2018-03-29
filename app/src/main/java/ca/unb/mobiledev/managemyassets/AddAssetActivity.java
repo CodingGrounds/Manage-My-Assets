@@ -18,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,9 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static ca.unb.mobiledev.managemyassets.Asset.LAT;
-import static ca.unb.mobiledev.managemyassets.Asset.LNG;
 
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -106,9 +102,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
 
         Intent mapIntent = getIntent();
-        double mapLat = mapIntent.getDoubleExtra(LAT, 0);
-        double mapLon = mapIntent.getDoubleExtra(LNG, 0);
-        Log.i("Map", " " + mapLon + "'");
+        double mapLat = mapIntent.getDoubleExtra(Asset.LAT, 0);
+        double mapLon = mapIntent.getDoubleExtra(Asset.LNG, 0);
         if(mapLat != 0 && mapLon != 0){
             mLatitudeEditText.setText(""+mapLat);
             mLongitudeEditText.setText(""+mapLon);
@@ -226,11 +221,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     mNameEditText.setEnabled(true);
                     mDescriptionEditText.setEnabled(true);
                     mNotesEditText.setEnabled(true);
-                    mLatitudeEditText.setEnabled(true);
-                    mLongitudeEditText.setEnabled(true);
                     mTakePictureFab.setVisibility(View.VISIBLE);
                     mCurrentLocationButton.setVisibility(View.VISIBLE);
-                    mViewMapLargeFab.setVisibility(View.INVISIBLE);
+                    mViewMapLargeFab.setVisibility(View.GONE);
 
                     mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
                     inEditMode = true;
