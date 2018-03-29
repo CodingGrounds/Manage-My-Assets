@@ -24,11 +24,17 @@ public class Asset implements Serializable {
     public static final String NOTES = "notes";
     public static final String LAT = "latitude";
     public static final String LNG = "longitude";
+    public static final String ACTION = "action";
     public static final String IMAGE = "image";
     public static final String DROP_TABLE_QUERY = "DROP TABLE IF EXISTS assets;";
     public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, notes TEXT, latitude REAL, longitude REAL, image TEXT);";
 
     public Asset() {
+    }
+
+    public Asset(double latitude, double longitude){
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public Asset(long id, String name, String description, String notes, double latitude, double longitude, String image) {

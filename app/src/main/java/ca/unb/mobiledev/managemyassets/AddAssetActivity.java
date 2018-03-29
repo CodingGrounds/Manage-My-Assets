@@ -9,13 +9,13 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -99,6 +99,16 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mViewListFab = findViewById(R.id.assetViewList_fab);
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
         mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
+
+
+        Intent mapIntent = getIntent();
+        double mapLat = mapIntent.getDoubleExtra(Asset.LAT, 0);
+        double mapLon = mapIntent.getDoubleExtra(Asset.LNG, 0);
+        if(mapLat != 0 && mapLon != 0){
+            mLatitudeEditText.setText(""+mapLat);
+            mLongitudeEditText.setText(""+mapLon);
+        }
+
 
         mTakePictureFab.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -13,8 +13,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,6 +29,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static ca.unb.mobiledev.managemyassets.Asset.OBJECT_NAME;
 
 /**
  * Created by laver on 2018-02-18.
@@ -46,6 +50,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker directionsMarker;
     private int locationCounter;
     private DatabaseCallTask databaseCallTask;
+    FragmentManager fm = getSupportFragmentManager();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +61,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         directionFab = findViewById(R.id.directions_fab);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-        detailAsset = (Asset) getIntent().getSerializableExtra(Asset.OBJECT_NAME);
+        detailAsset = (Asset) getIntent().getSerializableExtra(OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapActivity.this);
@@ -73,6 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else if (currentLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
+        addMapClickListener(false);
 
     }
 
@@ -89,6 +96,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 marker.showInfoWindow();
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 addDirectionsButton(marker);
+                mMap.setOnMapClickListener(null);
                 return true;
             }
         });
@@ -104,9 +112,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    //Flag for window close or not
+    private void addMapClickListener(final boolean flag){
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(!flag){
+                    Log.i("OnMapClick", " " + latLng.toString());
+                    AddDFragment addDFragment = new AddDFragment();
+                    Bundle bundle = new Bundle();
+                    Asset newAsset = new Asset(latLng.latitude, latLng.longitude);
+                    bundle.putSerializable(OBJECT_NAME, newAsset);
+                    addDFragment.setArguments(bundle);
+                    addDFragment.show(fm, "Add Dialog");
+                }
+            }
+        });
+    }
+
     public void databaseCallFinished(Asset asset) {
         Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
-        detailsIntent.putExtra(Asset.OBJECT_NAME, asset);
+        detailsIntent.putExtra(OBJECT_NAME, asset);
+        detailsIntent.putExtra(AddAssetActivity.INTENT_NEW_ASSET, false);
         startActivity(detailsIntent);
     }
 
@@ -122,12 +150,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
+
+
         //DON'T Know if u want this here
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
             @Override
             public void onInfoWindowClose(Marker marker) {
-
                 directionFab.setVisibility(View.INVISIBLE);
+                addMapClickListener(true);
                 marker.hideInfoWindow();
             }
         });
