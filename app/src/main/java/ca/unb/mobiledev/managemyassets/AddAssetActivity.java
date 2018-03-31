@@ -149,6 +149,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                                     @Override
                                     public void onShow(DialogInterface dialogInterface) {
                                         Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorText));
+                                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorText));
                                         okButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
