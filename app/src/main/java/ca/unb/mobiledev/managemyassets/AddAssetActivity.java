@@ -56,7 +56,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private ImageView mAssetPictureImageView;
     private Button mCurrentLocationButton;
 
-    private FloatingActionButton mTakePictureFab;
     private FloatingActionButton mSaveAssetFab;
     private FloatingActionButton mAddMoreFab;
     private FloatingActionButton mViewListFab;
@@ -94,7 +93,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
         mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
-        mTakePictureFab = findViewById(R.id.assetTakePicture_fab);
         mAddMoreFab = findViewById(R.id.assetAddMore_fab);
         mViewListFab = findViewById(R.id.assetViewList_fab);
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
@@ -109,8 +107,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
             mLongitudeEditText.setText(""+mapLon);
         }
 
-
-        mTakePictureFab.setOnClickListener(new View.OnClickListener() {
+        mAssetPictureImageView.setClickable(true);
+        mAssetPictureImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
@@ -223,7 +221,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     mNameEditText.setEnabled(true);
                     mDescriptionEditText.setEnabled(true);
                     mNotesEditText.setEnabled(true);
-                    mTakePictureFab.setVisibility(View.VISIBLE);
+                    mAssetPictureImageView.setClickable(true);
                     mCurrentLocationButton.setVisibility(View.VISIBLE);
                     mViewMapLargeFab.setVisibility(View.GONE);
 
@@ -338,7 +336,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                 mNameEditText.setEnabled(false);
                 mDescriptionEditText.setEnabled(false);
                 mNotesEditText.setEnabled(false);
-                mTakePictureFab.setVisibility(View.INVISIBLE);
+                mAssetPictureImageView.setClickable(false);
                 mCurrentLocationButton.setVisibility(View.GONE);
                 mViewMapLargeFab.setVisibility(View.VISIBLE);
                 mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
