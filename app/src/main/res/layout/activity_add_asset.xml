@@ -15,7 +15,8 @@
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="512dp">
+            android:layout_height="512dp"
+            android:paddingBottom="32dp">
 
             <ImageView
                 android:id="@+id/assetPicture_imageView"
@@ -101,44 +102,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/assetDescription_editText" />
 
             <TextView
-                android:id="@+id/assetLongitude_textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:width="@dimen/label_width"
-                android:background="@color/colorBackground"
-                android:enabled="false"
-                android:labelFor="@id/assetLongitude_editText"
-                android:padding="4dp"
-                android:text="@string/asset_longitude"
-                android:textColor="@color/colorText"
-                android:textColorHint="@color/colorHint"
-                android:textCursorDrawable="@null"
-                android:textSize="@dimen/text_size"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
-
-            <EditText
-                android:id="@+id/assetLongitude_editText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/colorBackground"
-                android:enabled="false"
-                android:gravity="start"
-                android:inputType="text|numberSigned|numberDecimal"
-                android:padding="4dp"
-                android:textColor="@color/colorText"
-                android:textColorHint="@color/colorHint"
-                android:textCursorDrawable="@null"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/assetLongitude_textView"
-                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
-
-            <TextView
                 android:id="@+id/assetLatitude_textView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -155,13 +118,13 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/text_size"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetLongitude_editText" />
+                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
 
             <EditText
                 android:id="@+id/assetLatitude_editText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="90dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/colorBackground"
@@ -173,9 +136,46 @@
                 android:textColorHint="@color/colorHint"
                 android:textCursorDrawable="@null"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@id/assetLatitude_textView"
-                app:layout_constraintTop_toBottomOf="@+id/assetLongitude_editText" />
+                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
+
+            <TextView
+                android:id="@+id/assetLongitude_textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:width="@dimen/label_width"
+                android:background="@color/colorBackground"
+                android:enabled="false"
+                android:labelFor="@id/assetLongitude_editText"
+                android:padding="4dp"
+                android:text="@string/asset_longitude"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
+
+            <EditText
+                android:id="@+id/assetLongitude_editText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="90dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorBackground"
+                android:enabled="false"
+                android:gravity="start"
+                android:inputType="text|numberSigned|numberDecimal"
+                android:padding="4dp"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/assetLongitude_textView"
+                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
 
             <Button
                 android:id="@+id/assetCurrentLocation_button"
@@ -234,10 +234,9 @@
                 android:id="@+id/assetAddMore_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="center"
                 android:src="@android:drawable/ic_input_add"
                 android:tint="@android:color/white"
-                app:backgroundTint="@android:color/holo_green_dark"
+                app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -269,10 +268,9 @@
                 android:id="@+id/assetViewList_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="center"
                 android:src="@android:drawable/ic_menu_save"
                 android:tint="@android:color/white"
-                app:backgroundTint="@android:color/holo_green_dark"
+                app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -304,10 +302,9 @@
                 android:id="@+id/assetViewMap_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="center"
                 android:src="@android:drawable/ic_dialog_map"
                 android:tint="@android:color/white"
-                app:backgroundTint="@android:color/holo_green_dark"
+                app:backgroundTint="@color/colorPrimary"
                 app:fabSize="mini" />
 
         </LinearLayout>
