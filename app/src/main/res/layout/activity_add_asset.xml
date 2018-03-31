@@ -101,6 +101,44 @@
                 app:layout_constraintTop_toBottomOf="@+id/assetDescription_editText" />
 
             <TextView
+                android:id="@+id/assetLatitude_textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:width="@dimen/label_width"
+                android:background="@color/colorBackground"
+                android:enabled="false"
+                android:labelFor="@id/assetLatitude_editText"
+                android:padding="4dp"
+                android:text="@string/asset_latitude"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
+
+            <EditText
+                android:id="@+id/assetLatitude_editText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorBackground"
+                android:enabled="false"
+                android:gravity="start"
+                android:inputType="text|numberSigned|numberDecimal"
+                android:padding="4dp"
+                android:textColor="@color/colorText"
+                android:textColorHint="@color/colorHint"
+                android:textCursorDrawable="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/assetLatitude_textView"
+                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
+
+            <TextView
                 android:id="@+id/assetLongitude_textView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -117,7 +155,7 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/text_size"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
+                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
 
             <EditText
                 android:id="@+id/assetLongitude_editText"
@@ -136,46 +174,7 @@
                 android:textCursorDrawable="@null"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/assetLongitude_textView"
-                app:layout_constraintTop_toBottomOf="@+id/assetCurrentLocation_button" />
-
-            <TextView
-                android:id="@+id/assetLatitude_textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:width="@dimen/label_width"
-                android:background="@color/colorBackground"
-                android:enabled="false"
-                android:labelFor="@id/assetLatitude_editText"
-                android:padding="4dp"
-                android:text="@string/asset_latitude"
-                android:textColor="@color/colorText"
-                android:textColorHint="@color/colorHint"
-                android:textCursorDrawable="@null"
-                android:textSize="@dimen/text_size"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/assetLongitude_editText" />
-
-            <EditText
-                android:id="@+id/assetLatitude_editText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/colorBackground"
-                android:enabled="false"
-                android:gravity="start"
-                android:inputType="text|numberSigned|numberDecimal"
-                android:padding="4dp"
-                android:textColor="@color/colorText"
-                android:textColorHint="@color/colorHint"
-                android:textCursorDrawable="@null"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@id/assetLatitude_textView"
-                app:layout_constraintTop_toBottomOf="@+id/assetLongitude_editText" />
+                app:layout_constraintTop_toBottomOf="@+id/assetLatitude_editText" />
 
             <Button
                 android:id="@+id/assetCurrentLocation_button"

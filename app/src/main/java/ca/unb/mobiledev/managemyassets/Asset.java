@@ -113,6 +113,6 @@ public class Asset implements Serializable {
     }
 
     public String toString() {
-        return "<b>" + id + ". " + name + "</b><br><i>" + description + "</i><br>" + "Lat: " + latitude + " Lon: " + longitude;
+        return "<b>" + name + "</b><br><i>" + description + "</i><br>" + "Latitude: \t" + latitude + " <br> Longitude: \t" + longitude;
     }
 }
