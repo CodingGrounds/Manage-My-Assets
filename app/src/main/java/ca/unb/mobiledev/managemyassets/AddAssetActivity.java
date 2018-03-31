@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -37,6 +38,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -45,8 +47,10 @@ import java.util.Locale;
 public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String INTENT_NEW_ASSET = "edit_mode";
-    private static final int REQUEST_CAPTURE_IMAGE = 1;
+    private static final int REQUEST_GATHER_IMAGE = 1;
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
+    private static final int PICTURE_ORIGIN_CAMERA = 1;
+    private static final int PICTURE_ORIGIN_GALLERY = 2;
 
     private EditText mNameEditText;
     private EditText mDescriptionEditText;
@@ -72,6 +76,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private boolean isNewAsset = true;
     private boolean inEditMode = true;
     private boolean fabMenuExpanded = false;
+    private int fileOrigin = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,20 +103,33 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
         mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
 
-
-        Intent mapIntent = getIntent();
-        double mapLat = mapIntent.getDoubleExtra(Asset.LAT, 0);
-        double mapLon = mapIntent.getDoubleExtra(Asset.LNG, 0);
-        if(mapLat != 0 && mapLon != 0){
-            mLatitudeEditText.setText(""+mapLat);
-            mLongitudeEditText.setText(""+mapLon);
-        }
-
+        // Set click listeners
         mAssetPictureImageView.setClickable(true);
         mAssetPictureImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
+                PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mAssetPictureImageView);
+                popupMenu.getMenuInflater().inflate(R.menu.get_picture_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.pictureCamera_item:
+                                // let the user take a picture
+                                fileOrigin = PICTURE_ORIGIN_CAMERA;
+                                break;
+                            case R.id.pictureGallery_item:
+                                // let the user select a photo from their gallery
+                                fileOrigin = PICTURE_ORIGIN_GALLERY;
+                                break;
+                            default:
+                                break;
+                        }
+                        requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
         mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
@@ -410,14 +428,25 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CAPTURE_IMAGE && resultCode == RESULT_OK) {
-            if (data != null && data.getExtras() != null) {
-                Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-                String filePath = saveToInternalStorage(imageBitmap);
+        if (requestCode == REQUEST_GATHER_IMAGE && resultCode == RESULT_OK && data != null) {
+            Bitmap imageBitmap = null;
 
-                if (filePath != null) {
-                    mAssetPictureImageView.setImageBitmap(imageBitmap);
+            if (fileOrigin == PICTURE_ORIGIN_CAMERA) {
+                imageBitmap = (Bitmap) data.getExtras().get("data");
+            }
+            if (fileOrigin == PICTURE_ORIGIN_GALLERY) {
+                Uri imageUri = data.getData();
+                try {
+                    InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                    imageBitmap = BitmapFactory.decodeStream(imageStream);
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Unable to load image from gallery", Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            if (imageBitmap != null) {
+                String filePath = saveToInternalStorage(imageBitmap);
+                mAssetPictureImageView.setImageBitmap(imageBitmap);
                 mAssetPictureImageView.setTag(filePath);
             }
         }
@@ -520,11 +549,24 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     }
 
     private void saveImageFile() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_CAPTURE_IMAGE);
+        Intent intent = null;
+
+        switch (fileOrigin) {
+            case PICTURE_ORIGIN_CAMERA:
+                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                break;
+            case PICTURE_ORIGIN_GALLERY:
+                intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                break;
+            default:
+                break;
+        }
+
+        if (intent != null && intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_GATHER_IMAGE);
         } else {
-            Toast.makeText(AddAssetActivity.this, "Unable to find a suitable camera app", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AddAssetActivity.this, "Unable to determine an image source", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -16,4 +16,6 @@
     <string name="location_manual">Enter Coordinates Manually</string>
     <string name="location_address">Use Address or Postal Code</string>
     <string name="location_map">Select Location on Map</string>
+    <string name="picture_camera">Take a Picture</string>
+    <string name="picture_gallery">Upload an Existing Picture</string>
 </resources>
