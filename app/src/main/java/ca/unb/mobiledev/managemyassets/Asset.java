@@ -16,38 +16,11 @@ public class Asset implements Serializable {
     private double latitude;
     private double longitude;
 
-    public static final String TABLE_NAME = "assets";
-    public static final String OBJECT_NAME = "asset";
-    public static final String ID = "id";
-    public static final String NAME = "name";
-    public static final String DESCRIPTION = "description";
-    public static final String NOTES = "notes";
-    public static final String LAT = "latitude";
-    public static final String LNG = "longitude";
-    public static final String ACTION = "action";
-    public static final String IMAGE = "image";
-    public static final String DROP_TABLE_QUERY = "DROP TABLE IF EXISTS assets;";
-    public static final String CREATE_TABLE_QUERY = "CREATE TABLE assets (id INTEGER PRIMARY KEY, name TEXT, description TEXT, notes TEXT, latitude REAL, longitude REAL, image TEXT);";
-
     public Asset() {
-    }
-
-    public Asset(double latitude, double longitude){
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
     public Asset(long id, String name, String description, String notes, double latitude, double longitude, String image) {
         this.id = id;
-        this.name = name;
-        this.description = description;
-        this.notes = notes;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.image = image;
-    }
-
-    public Asset(String name, String description, String notes, double latitude, double longitude, String image) {
         this.name = name;
         this.description = description;
         this.notes = notes;
@@ -113,6 +86,8 @@ public class Asset implements Serializable {
     }
 
     public String toString() {
-        return "<b>" + name + "</b><br><i>" + description + "</i><br>" + "Latitude: \t" + latitude + " <br> Longitude: \t" + longitude;
+        return "<b>" + name + "</b><br><i>" + description + "</i><br>"
+                + MMAConstants.ASSET_LATITUDE + ": " + latitude + " <br> "
+                + MMAConstants.ASSET_LONGITUDE + ": " + longitude;
     }
 }

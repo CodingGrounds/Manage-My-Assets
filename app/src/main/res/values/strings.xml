@@ -2,6 +2,7 @@
     <string name="app_name">Manage My Assets</string>
     <string name="button_text">Map</string>
     <string name="tool_bar">Map View</string>
+
     <string name="asset_name">Name</string>
     <string name="asset_description">Description</string>
     <string name="asset_notes">Notes</string>
@@ -12,10 +13,33 @@
     <string name="asset_map">View on Map</string>
     <string name="asset_add">Add Another Asset</string>
     <string name="asset_list">Return to List</string>
+
     <string name="location_current">Use Device Location</string>
     <string name="location_manual">Enter Coordinates Manually</string>
     <string name="location_address">Use Address or Postal Code</string>
     <string name="location_map">Select Location on Map</string>
+    <string name="location_map_add_title">Add Asset</string>
+    <string name="location_map_add_message">Would you like to add an asset at this location?</string>
+
     <string name="picture_camera">Take a Picture</string>
     <string name="picture_gallery">Upload an Existing Picture</string>
+
+    <string name="input_button_ok">OK</string>
+    <string name="input_button_cancel">Cancel</string>
+    <string name="input_button_yes">Yes</string>
+    <string name="input_button_no">No</string>
+    <string name="input_location_address">Enter an Address or Postal Code</string>
+
+    <string name="required_asset_name">Name is required</string>
+    <string name="required_asset_location">Location is required</string>
+
+    <string name="error_default_case_needed">Error: You broke the unbreakable flow of logic. Congratulations</string>
+    <string name="error_asset_save_failed">Error: Unable to save asset</string>
+    <string name="error_photo_source_failed">Error: No picture source provided</string>
+    <string name="error_photo_save_failed">Error: Unable to save photo</string>
+    <string name="error_photo_load_failed">Error: Unable to load photo</string>
+    <string name="error_location_device_failed">Error: Unable to get device location</string>
+    <string name="error_location_address_ambiguous">Error: More than one location found. Please provide more detail</string>
+    <string name="error_location_address_failed">Error: Unable to find address provided</string>
+    <string name="error_location_permission_failed">Error: Location permission denied. Unable to center on device position</string>
 </resources>

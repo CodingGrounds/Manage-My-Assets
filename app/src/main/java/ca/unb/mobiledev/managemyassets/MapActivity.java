@@ -2,6 +2,7 @@ package ca.unb.mobiledev.managemyassets;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -11,12 +12,13 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,8 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static ca.unb.mobiledev.managemyassets.Asset.OBJECT_NAME;
-
 /**
  * Created by laver on 2018-02-18.
  */
@@ -41,14 +41,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ArrayList<Asset> assetList;
     private GoogleMap mMap;
     private Asset detailAsset;
-    private LocationManager locationManager;
     private FloatingActionButton directionFab;
-    protected static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private LatLng currentLocation;
     private Marker directionsMarker;
     private int locationCounter;
     private DatabaseCallTask databaseCallTask;
-    FragmentManager fm = getSupportFragmentManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +55,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         directionFab = findViewById(R.id.directions_fab);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
-        detailAsset = (Asset) getIntent().getSerializableExtra(OBJECT_NAME);
+        detailAsset = (Asset) getIntent().getSerializableExtra(MMAConstants.ASSET_OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapActivity.this);
@@ -98,7 +95,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onInfoWindowClick(Marker marker) {
                 databaseCallTask = new DatabaseCallTask(MapActivity.this);
-                databaseCallTask.execute(DatabaseCallTask.SELECT_ASSET, DatabaseCallTask.MAP_ACTIVITY, marker.getPosition());
+                databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSET, MMAConstants.ORIGIN_MAP_ACTIVITY, marker.getPosition());
             }
         });
 
@@ -110,13 +107,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng latLng) {
                 if(!flag){
-                    Log.i("OnMapClick", " " + latLng.toString());
-                    AddDFragment addDFragment = new AddDFragment();
-                    Bundle bundle = new Bundle();
-                    Asset newAsset = new Asset(latLng.latitude, latLng.longitude);
-                    bundle.putSerializable(OBJECT_NAME, newAsset);
-                    addDFragment.setArguments(bundle);
-                    addDFragment.show(fm, "Add Dialog");
+                    final Asset newAsset = new Asset();
+                    newAsset.setLatitude(latLng.latitude);
+                    newAsset.setLongitude(latLng.longitude);
+
+                    final AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this)
+                            .setTitle(getString(R.string.location_map_add_title))
+                            .setMessage(getString(R.string.location_map_add_message))
+                            .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Intent addAsset = new Intent(MapActivity.this, AddAssetActivity.class);
+                                    addAsset.putExtra(MMAConstants.ASSET_OBJECT_NAME, newAsset);
+                                    addAsset.putExtra(MMAConstants.INTENT_NEW_ASSET,  true);
+                                    startActivity(addAsset);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.input_button_no), null)
+                            .create();
+                    alertDialog.show();
                 }
             }
         });
@@ -124,8 +133,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void databaseCallFinished(Asset asset) {
         Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
-        detailsIntent.putExtra(OBJECT_NAME, asset);
-        detailsIntent.putExtra(AddAssetActivity.INTENT_NEW_ASSET, false);
+        detailsIntent.putExtra(MMAConstants.ASSET_OBJECT_NAME, asset);
+        detailsIntent.putExtra(MMAConstants.INTENT_NEW_ASSET, false);
         startActivity(detailsIntent);
     }
 
@@ -141,7 +150,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
-        //DON'T Know if u want this here
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
             @Override
             public void onInfoWindowClose(Marker marker) {
@@ -181,10 +189,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MMAConstants.REQUEST_PERMISSION_ACCESS_FINE_LOCATION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setCurrentLocationEnabled();
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_location_permission_failed), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -193,18 +203,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setCurrentLocationEnabled() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             String provider = locationManager.getBestProvider(criteria, true);
             Location location = locationManager.getLastKnownLocation(provider);
             if (location != null) {
                 onLocationChanged(location);
             }
-
             locationManager.requestLocationUpdates(provider, 2000, 10, this);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MMAConstants.REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
         }
     }
 }
