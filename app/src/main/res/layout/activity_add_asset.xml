@@ -29,21 +29,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_default_asset_image" />
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/assetTakePicture_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="105dp"
-                android:backgroundTint="@color/colorPrimary"
-                android:src="@android:drawable/ic_menu_camera"
-                android:tint="@color/colorText"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.956"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.395" />
-
             <EditText
                 android:id="@+id/assetName_editText"
                 android:layout_width="0dp"

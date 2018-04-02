@@ -22,11 +22,7 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private RecyclerView.Adapter assetAdapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private FloatingActionButton mAddAssetFab;
-    private DatabaseCallTask databaseCallTask;
     private ArrayList<Asset> assetList;
 
     @Override
@@ -43,14 +39,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Initialize variables
-        databaseCallTask = new DatabaseCallTask(this);
+        DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
+        FloatingActionButton mAddAssetFab = findViewById(R.id.assetAdd_fab);
+
+        RecyclerView recyclerView = findViewById(R.id.asset_recycler_view);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+
+        assetAdapter = new AssetAdapter();
         assetList = new ArrayList<>();
 
-        recyclerView = findViewById(R.id.asset_recycler_view);
-        layoutManager = new LinearLayoutManager(this);
-        assetAdapter = new AssetAdapter();
-
-        mAddAssetFab = findViewById(R.id.assetAdd_fab);
         mAddAssetFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(assetAdapter);
 
-        databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, DatabaseCallTask.MAIN_ACTIVITY, null);
+        databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAIN_ACTIVITY, null);
     }
 
     public void databaseCallFinished(Asset[] assets) {
@@ -94,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, AddAssetActivity.class);
-                    intent.putExtra(Asset.OBJECT_NAME, viewHolder.asset);
-                    intent.putExtra(AddAssetActivity.INTENT_NEW_ASSET, false);
+                    intent.putExtra(MMAConstants.ASSET_OBJECT_NAME, viewHolder.asset);
+                    intent.putExtra(MMAConstants.INTENT_NEW_ASSET, false);
                     startActivity(intent);
                 }
             });
@@ -111,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
         */
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            public TextView mAssetTextView;
-            public Asset asset;
+            private TextView mAssetTextView;
+            private Asset asset;
 
             public ViewHolder(TextView view) {
                 super(view);
