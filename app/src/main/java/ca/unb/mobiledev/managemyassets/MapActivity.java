@@ -17,7 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Toast;
 
@@ -38,7 +38,6 @@ import java.util.Arrays;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
-    private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
     private GoogleMap mMap;
     private Asset detailAsset;
@@ -54,7 +53,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         locationCounter = 0;
         directionFab = findViewById(R.id.directions_fab);
-        databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = null;
         detailAsset = (Asset) getIntent().getSerializableExtra(MMAConstants.ASSET_OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -70,7 +68,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
         databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAP_ACTIVITY, null);
 
-        //updateMapAssets();
         setCurrentLocationEnabled();
         if (detailAsset != null) {
             // Zoom in on the marker the user chooses to view
@@ -85,7 +82,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void databaseCallFinished(Asset[] assets) {
         assetList = new ArrayList<>(Arrays.asList(assets));
-        Log.i("DatabaseFinished", " " + assets.toString());
         updateMapAssets();
     }
 
@@ -132,9 +128,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     newAsset.setLatitude(latLng.latitude);
                     newAsset.setLongitude(latLng.longitude);
 
-                    final AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this)
+                    final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(MapActivity.this, R.style.alertDialog))
                             .setTitle(getString(R.string.location_map_add_title))
                             .setMessage(getString(R.string.location_map_add_message))
+                            .setNegativeButton(getString(R.string.input_button_no), null)
                             .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -144,7 +141,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     startActivity(addAsset);
                                 }
                             })
-                            .setNegativeButton(getString(R.string.input_button_no), null)
                             .create();
                     alertDialog.show();
                 }
