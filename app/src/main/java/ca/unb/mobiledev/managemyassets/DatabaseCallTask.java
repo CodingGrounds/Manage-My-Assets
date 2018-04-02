@@ -49,6 +49,8 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
                     return new Object[]{caller, myDatabase.insertAsset((Asset) params[2])};
                 case MMAConstants.DATABASE_UPDATE_ASSET:
                     return new Object[]{caller, myDatabase.updateAsset((Asset) params[2])};
+                case MMAConstants.DATABASE_DELETE_ASSET:
+                    return new Object[]{caller, myDatabase.deleteAsset((Asset) params[2])};
                 default:
                     return new Object[0];
             }
@@ -59,21 +61,21 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
 
 
     @Override
-    protected void onPostExecute(Object[] result) {
-        super.onPostExecute(result);
+    protected void onPostExecute(Object... params) {
+        super.onPostExecute(params);
 
         Activity activity = weakActivity.get();
         if (activity == null || activity.isFinishing() || activity.isDestroyed())
             return;
 
-        if (result.length > 0) {
-            int caller = (int) result[0];
+        if (params.length > 0) {
+            int caller = (int) params[0];
             switch (caller) {
                 case MMAConstants.ORIGIN_MAIN_ACTIVITY:
-                    ((MainActivity) activity).databaseCallFinished((Asset[]) result[1]);
+                    ((MainActivity) activity).databaseCallFinished((Asset[]) params[1]);
                     break;
                 case MMAConstants.ORIGIN_MAP_ACTIVITY:
-                    ((MapActivity) activity).databaseCallFinished((Asset) result[1]);
+                    ((MapActivity) activity).databaseCallFinished((Asset) params[1]);
                     break;
                 case MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY:
                     break;

@@ -24,6 +24,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -128,19 +130,50 @@ public class AddAssetActivity extends AppCompatActivity {
             // Set the activity to edit mode
             if (!mInEditMode) {
                 mIsNewAsset = false;
-                // Disable or hide objects
-                mNameEditText.setEnabled(false);
-                mDescriptionEditText.setEnabled(false);
-                mNotesEditText.setEnabled(false);
-                mAssetPictureImageView.setClickable(false);
-                mCurrentLocationButton.setVisibility(View.GONE);
-                mViewMapLargeFab.setVisibility(View.VISIBLE);
-                mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
+                toggleEditMode(mInEditMode);
             }
         }
 
         // Hide the additional buttons initially
         closeFabSubMenu();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (!mIsNewAsset) {
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.add_asset_menu, menu);
+            return true;
+        } else {
+            return super.onCreateOptionsMenu(menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.assetDelete_action:
+                AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog))
+                        .setTitle(getString(R.string.asset_delete))
+                        .setMessage(getString(R.string.asset_delete_confirm))
+                        .setNegativeButton(getString(R.string.input_button_no), null)
+                        .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Asset asset = getViewData();
+                                databaseCallTask.execute(MMAConstants.DATABASE_DELETE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
+                                resetFields();
+                                toggleEditMode(true);
+                                mIsNewAsset = true;
+                                mInEditMode = true;
+                            }
+                        })
+                        .create();
+                alertDialog.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
     }
 
     @Override
@@ -205,6 +238,41 @@ public class AddAssetActivity extends AppCompatActivity {
         mFabMenuExpanded = false;
     }
 
+    private void resetFields() {
+        mAssetPictureImageView.setImageResource(R.drawable.ic_default_asset_image);
+        mIsNewAsset = true;
+
+        mNameEditText.setText(null);
+        mDescriptionEditText.setText(null);
+        mNotesEditText.setText(null);
+        mLatitudeEditText.setText(null);
+        mLongitudeEditText.setText(null);
+
+        mNameEditText.setTag(null);
+        mAssetPictureImageView.setTag(null);
+    }
+
+    private void toggleEditMode(boolean enterEditMode) {
+        if (enterEditMode) {
+            mNameEditText.setEnabled(true);
+            mDescriptionEditText.setEnabled(true);
+            mNotesEditText.setEnabled(true);
+            mAssetPictureImageView.setClickable(true);
+            mCurrentLocationButton.setVisibility(View.VISIBLE);
+            mViewMapLargeFab.setVisibility(View.GONE);
+            mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
+        } else {
+            mNameEditText.setEnabled(false);
+            mDescriptionEditText.setEnabled(false);
+            mNotesEditText.setEnabled(false);
+            mAssetPictureImageView.setClickable(false);
+            mCurrentLocationButton.setVisibility(View.GONE);
+            mViewMapLargeFab.setVisibility(View.VISIBLE);
+            mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
+        }
+        invalidateOptionsMenu();
+    }
+
     /* Data functions */
 
     @Nullable
@@ -234,15 +302,7 @@ public class AddAssetActivity extends AppCompatActivity {
         }
 
         // Id gets set even if null but only gets used for an update; when it would actually have a value
-        Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-
-        if (mIsNewAsset) {
-            databaseCallTask.execute(MMAConstants.DATABASE_INSERT_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
-        } else {
-            databaseCallTask.execute(MMAConstants.DATABASE_UPDATE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
-        }
-
-        return asset;
+        return new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
     }
 
     @Nullable
@@ -479,14 +539,7 @@ public class AddAssetActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             if (!mInEditMode) {
-                mNameEditText.setEnabled(true);
-                mDescriptionEditText.setEnabled(true);
-                mNotesEditText.setEnabled(true);
-                mAssetPictureImageView.setClickable(true);
-                mCurrentLocationButton.setVisibility(View.VISIBLE);
-                mViewMapLargeFab.setVisibility(View.GONE);
-
-                mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
+                toggleEditMode(true);
                 mInEditMode = true;
             } else {
                 if (mFabMenuExpanded) {
@@ -508,22 +561,17 @@ public class AddAssetActivity extends AppCompatActivity {
             } else {
                 // Close menu
                 closeFabSubMenu();
+                if (mIsNewAsset) {
+                    databaseCallTask.execute(MMAConstants.DATABASE_INSERT_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
+                } else {
+                    databaseCallTask.execute(MMAConstants.DATABASE_UPDATE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
+                }
 
                 // Determine which fab was clicked
                 switch (view.getId()) {
                     case R.id.assetAddMore_fab:
                         // Reset fields for another asset
-                        mAssetPictureImageView.setImageResource(R.drawable.ic_default_asset_image);
-                        mIsNewAsset = true;
-
-                        mNameEditText.setText(null);
-                        mDescriptionEditText.setText(null);
-                        mNotesEditText.setText(null);
-                        mLatitudeEditText.setText(null);
-                        mLongitudeEditText.setText(null);
-
-                        mNameEditText.setTag(null);
-                        mAssetPictureImageView.setTag(null);
+                        resetFields();
                         break;
                     case R.id.assetViewList_fab:
                         // Return to the main list of assets
