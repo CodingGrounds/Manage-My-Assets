@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(assetAdapter);
-
         databaseCallTask.execute(DatabaseCallTask.SELECT_ASSETS, DatabaseCallTask.MAIN_ACTIVITY, null);
     }
 

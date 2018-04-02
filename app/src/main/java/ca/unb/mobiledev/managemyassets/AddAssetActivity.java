@@ -56,7 +56,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private ImageView mAssetPictureImageView;
     private Button mCurrentLocationButton;
 
-    private FloatingActionButton mTakePictureFab;
     private FloatingActionButton mSaveAssetFab;
     private FloatingActionButton mAddMoreFab;
     private FloatingActionButton mViewListFab;
@@ -94,12 +93,12 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
         mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
-        mTakePictureFab = findViewById(R.id.assetTakePicture_fab);
         mAddMoreFab = findViewById(R.id.assetAddMore_fab);
         mViewListFab = findViewById(R.id.assetViewList_fab);
         mViewMapFab = findViewById(R.id.assetViewMap_fab);
         mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
 
+        imageClick(true);
 
         Intent mapIntent = getIntent();
         double mapLat = mapIntent.getDoubleExtra(Asset.LAT, 0);
@@ -107,15 +106,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         if(mapLat != 0 && mapLon != 0){
             mLatitudeEditText.setText(""+mapLat);
             mLongitudeEditText.setText(""+mapLon);
+            imageClick(true);
         }
 
-
-        mTakePictureFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
-            }
-        });
         mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,6 +142,8 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                                     @Override
                                     public void onShow(DialogInterface dialogInterface) {
                                         Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorText));
+                                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorText));
                                         okButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
@@ -221,10 +216,9 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                     mNameEditText.setEnabled(true);
                     mDescriptionEditText.setEnabled(true);
                     mNotesEditText.setEnabled(true);
-                    mTakePictureFab.setVisibility(View.VISIBLE);
                     mCurrentLocationButton.setVisibility(View.VISIBLE);
                     mViewMapLargeFab.setVisibility(View.GONE);
-
+                    imageClick(true);
                     mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
                     inEditMode = true;
                 } else {
@@ -328,7 +322,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
             mNameEditText.setTag(asset.getId());
             mAssetPictureImageView.setTag(asset.getImage());
-
+            imageClick(true);
             // Set the activity to edit mode
             if (!inEditMode) {
                 isNewAsset = false;
@@ -336,15 +330,29 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
                 mNameEditText.setEnabled(false);
                 mDescriptionEditText.setEnabled(false);
                 mNotesEditText.setEnabled(false);
-                mTakePictureFab.setVisibility(View.INVISIBLE);
+                imageClick(false);
                 mCurrentLocationButton.setVisibility(View.GONE);
                 mViewMapLargeFab.setVisibility(View.VISIBLE);
                 mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
             }
+
         }
 
         // Hide the additional buttons initially
         closeFabSubMenu();
+    }
+
+    public void imageClick(final boolean flag){
+
+        mAssetPictureImageView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if(flag) {
+                    requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
+                }
+            }
+        });
     }
 
     @Override
@@ -526,6 +534,7 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         } else {
             Toast.makeText(AddAssetActivity.this, "Unable to find a suitable camera app", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     public void databaseCallFinished(Asset asset) {

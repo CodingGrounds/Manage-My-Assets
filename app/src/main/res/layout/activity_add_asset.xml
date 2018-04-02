@@ -26,7 +26,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_default_asset_image" />
+                app:srcCompat="@drawable/grey_placeholder" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/assetTakePicture_fab"
