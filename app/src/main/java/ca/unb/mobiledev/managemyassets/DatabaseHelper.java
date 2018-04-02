@@ -15,11 +15,9 @@ import com.google.android.gms.maps.model.LatLng;
 class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper databaseHelper;
-    private static final String DATABASE_NAME = "ManageMyAssets.db";
-    private static final int DATABASE_VERSION = 3;
 
     private DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, MMAConstants.DATABASE_NAME, null, MMAConstants.DATABASE_VERSION);
     }
 
     public static synchronized DatabaseHelper getDatabaseHelper(Context context) {
@@ -32,21 +30,22 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         // Create database and all tables
-        database.execSQL(Asset.CREATE_TABLE_QUERY);
+        database.execSQL(MMAConstants.ASSET_CREATE_TABLE_QUERY);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         // Drop database and tables and recreate them
-        database.execSQL(Asset.DROP_TABLE_QUERY);
+        database.execSQL(MMAConstants.ASSET_DROP_TABLE_QUERY);
         onCreate(database);
     }
 
     public Asset[] selectAssets() {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor;
-        int assetCount, arrayPosition;
-        String query = "SELECT * FROM " + Asset.TABLE_NAME;
+        int assetCount;
+        int arrayPosition;
+        String query = "SELECT * FROM " + MMAConstants.ASSET_TABLE_NAME;
 
         cursor = database.rawQuery(query, null);
         assetCount = arrayPosition = cursor.getCount();
@@ -80,9 +79,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor;
         Asset asset = null;
 
-        String whereColumns = Asset.ID + " = ? ";
+        String whereColumns = MMAConstants.ASSET_ID + " = ? ";
         String[] whereArgs = {String.valueOf(id)};
-        cursor = database.query(Asset.TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
+        cursor = database.query(MMAConstants.ASSET_TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
 
         if (cursor.moveToFirst()) {
             asset = new Asset();
@@ -106,9 +105,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor;
         Asset asset = null;
 
-        String whereColumns = Asset.LAT + " = ? AND " + Asset.LNG + " = ? ";
+        String whereColumns = MMAConstants.ASSET_LATITUDE + " = ? AND " + MMAConstants.ASSET_LONGITUDE + " = ? ";
         String[] whereArgs = {String.valueOf(latLng.latitude), String.valueOf(latLng.longitude)};
-        cursor = database.query(Asset.TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
+        cursor = database.query(MMAConstants.ASSET_TABLE_NAME, null, whereColumns, whereArgs, null, null, null);
 
         if (cursor.moveToFirst()) {
             asset = new Asset();
@@ -131,14 +130,14 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(Asset.NAME, asset.getName());
-        contentValues.put(Asset.DESCRIPTION, asset.getDescription());
-        contentValues.put(Asset.NOTES, asset.getNotes());
-        contentValues.put(Asset.LAT, asset.getLatitude());
-        contentValues.put(Asset.LNG, asset.getLongitude());
-        contentValues.put(Asset.IMAGE, asset.getImage());
+        contentValues.put(MMAConstants.ASSET_NAME, asset.getName());
+        contentValues.put(MMAConstants.ASSET_DESCRIPTION, asset.getDescription());
+        contentValues.put(MMAConstants.ASSET_NOTES, asset.getNotes());
+        contentValues.put(MMAConstants.ASSET_LATITUDE, asset.getLatitude());
+        contentValues.put(MMAConstants.ASSET_LONGITUDE, asset.getLongitude());
+        contentValues.put(MMAConstants.ASSET_IMAGE, asset.getImage());
 
-        long result = database.insert(Asset.TABLE_NAME, null, contentValues);
+        long result = database.insert(MMAConstants.ASSET_TABLE_NAME, null, contentValues);
         database.close();
 
         return selectAsset(result);
@@ -151,14 +150,14 @@ class DatabaseHelper extends SQLiteOpenHelper {
         String whereClause = "id = ?";
         String[] whereArgs = {String.valueOf(asset.getId())};
 
-        contentValues.put(Asset.NAME, asset.getName());
-        contentValues.put(Asset.DESCRIPTION, asset.getDescription());
-        contentValues.put(Asset.NOTES, asset.getNotes());
-        contentValues.put(Asset.LAT, asset.getLatitude());
-        contentValues.put(Asset.LNG, asset.getLongitude());
-        contentValues.put(Asset.IMAGE, asset.getImage());
+        contentValues.put(MMAConstants.ASSET_NAME, asset.getName());
+        contentValues.put(MMAConstants.ASSET_DESCRIPTION, asset.getDescription());
+        contentValues.put(MMAConstants.ASSET_NOTES, asset.getNotes());
+        contentValues.put(MMAConstants.ASSET_LATITUDE, asset.getLatitude());
+        contentValues.put(MMAConstants.ASSET_LONGITUDE, asset.getLongitude());
+        contentValues.put(MMAConstants.ASSET_IMAGE, asset.getImage());
 
-        long result = database.update(Asset.TABLE_NAME, contentValues, whereClause, whereArgs);
+        long result = database.update(MMAConstants.ASSET_TABLE_NAME, contentValues, whereClause, whereArgs);
         database.close();
 
         if (result > 0)
@@ -170,10 +169,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
     public boolean deleteAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
 
-        String whereClause = "name = ? AND latitude = ? AND longitude = ?";
-        String[] whereArgs = {asset.getName(), String.valueOf(asset.getLatitude()), String.valueOf(asset.getLongitude())};
+        String whereClause = "id = ?";
+        String[] whereArgs = {String.valueOf(asset.getId())};
 
-        long result = database.delete(Asset.TABLE_NAME, whereClause, whereArgs);
+        long result = database.delete(MMAConstants.ASSET_TABLE_NAME, whereClause, whereArgs);
         database.close();
 
         return result != -1;

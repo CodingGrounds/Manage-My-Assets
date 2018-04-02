@@ -7,10 +7,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,25 +33,18 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AddAssetActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-    public static final String INTENT_NEW_ASSET = "edit_mode";
-    private static final int REQUEST_CAPTURE_IMAGE = 1;
-    private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
+public class AddAssetActivity extends AppCompatActivity {
 
     private EditText mNameEditText;
     private EditText mDescriptionEditText;
@@ -57,9 +55,6 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private Button mCurrentLocationButton;
 
     private FloatingActionButton mSaveAssetFab;
-    private FloatingActionButton mAddMoreFab;
-    private FloatingActionButton mViewListFab;
-    private FloatingActionButton mViewMapFab;
     private FloatingActionButton mViewMapLargeFab;
 
     private LinearLayout mViewMapFabLayout;
@@ -67,11 +62,13 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
     private LinearLayout mAddMoreFabLayout;
 
     private DatabaseCallTask databaseCallTask;
-    private GoogleApiClient mGoogleApiClient;
 
-    private boolean isNewAsset = true;
-    private boolean inEditMode = true;
-    private boolean fabMenuExpanded = false;
+    private boolean mIsNewAsset = true;
+    private boolean mInEditMode = true;
+    private boolean mFabMenuExpanded = false;
+    private int mFileOrigin = 0;
+
+    /* Overridden functions */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,296 +90,203 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
 
         mCurrentLocationButton = findViewById(R.id.assetCurrentLocation_button);
         mSaveAssetFab = findViewById(R.id.assetSave_fab);
-        mAddMoreFab = findViewById(R.id.assetAddMore_fab);
-        mViewListFab = findViewById(R.id.assetViewList_fab);
-        mViewMapFab = findViewById(R.id.assetViewMap_fab);
         mViewMapLargeFab = findViewById(R.id.assetViewMapLarge_fab);
 
-        imageClick(true);
+        FloatingActionButton mAddMoreFab = findViewById(R.id.assetAddMore_fab);
+        FloatingActionButton mViewListFab = findViewById(R.id.assetViewList_fab);
+        FloatingActionButton mViewMapFab = findViewById(R.id.assetViewMap_fab);
 
-        Intent mapIntent = getIntent();
-        double mapLat = mapIntent.getDoubleExtra(Asset.LAT, 0);
-        double mapLon = mapIntent.getDoubleExtra(Asset.LNG, 0);
-        if(mapLat != 0 && mapLon != 0){
-            mLatitudeEditText.setText(""+mapLat);
-            mLongitudeEditText.setText(""+mapLon);
-            imageClick(true);
-        }
+        // Set click listeners
+        mAssetPictureImageView.setClickable(true);
+        mAssetPictureImageView.setOnClickListener(mAssetPictureImageViewClickListener);
+        mCurrentLocationButton.setOnClickListener(mCurrentLocationButtonClickListener);
+        mSaveAssetFab.setOnClickListener(mSaveAssetFabClickListener);
+        mViewMapLargeFab.setOnClickListener(mFabClickListener);
+        mAddMoreFab.setOnClickListener(mFabClickListener);
+        mViewListFab.setOnClickListener(mFabClickListener);
+        mViewMapFab.setOnClickListener(mFabClickListener);
 
-        mCurrentLocationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mCurrentLocationButton);
-                popupMenu.getMenuInflater().inflate(R.menu.get_location_menu, popupMenu.getMenu());
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        // Disable coordinate inputs and make them blend into the background
-                        mLatitudeEditText.setEnabled(false);
-                        mLongitudeEditText.setEnabled(false);
-                        mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
-                        mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
-
-                        switch (menuItem.getItemId()) {
-                            case R.id.currentLocation_item:
-                                requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
-                                return true;
-                            case R.id.addressLocation_item:
-                                final EditText addressInput = new EditText(getApplicationContext());
-                                addressInput.setInputType(InputType.TYPE_CLASS_TEXT);
-                                addressInput.setTextColor(getResources().getColor(R.color.colorText));
-                                final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog))
-                                        .setView(addressInput)
-                                        .setTitle("Enter Address or Postal Code")
-                                        .setPositiveButton("OK", null)
-                                        .setNegativeButton("Cancel", null)
-                                        .create();
-
-                                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @Override
-                                    public void onShow(DialogInterface dialogInterface) {
-                                        Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorText));
-                                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorText));
-                                        okButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                Geocoder coder = new Geocoder(AddAssetActivity.this, Locale.getDefault());
-                                                final List<Address> addresses;
-                                                try {
-                                                    String addressString = addressInput.getText().toString();
-                                                    addresses = coder.getFromLocationName(addressString, 100);
-                                                    if (!addresses.isEmpty()) {
-                                                        if (addresses.size() > 1) {
-                                                            // More than one result found. Alert the user
-                                                            addressInput.setError("More than one location found. Please provide more detail");
-                                                            addressInput.setText(addressString);
-                                                        } else {
-                                                            // Only one result found, grab the coordinates
-                                                            Address location = addresses.get(0);
-                                                            mLatitudeEditText.setText(String.valueOf(location.getLatitude()));
-                                                            mLongitudeEditText.setText(String.valueOf(location.getLongitude()));
-                                                            alertDialog.dismiss();
-                                                        }
-                                                    } else {
-                                                        Toast.makeText(AddAssetActivity.this, "No address found", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                } catch (IOException e) {
-                                                    Toast.makeText(getApplicationContext(), "Unable to get location from address", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-
-                                alertDialog.show();
-
-                                // TODO Deal with permissions
-                                return true;
-                            case R.id.mapLocation_item:
-                                Asset asset = new Asset();
-                                Intent intent = new Intent(AddAssetActivity.this, GetLocationMapsActivity.class);
-                                // Store the current input fields so that they can be restored
-                                if (mNameEditText.getTag() != null)
-                                    asset.setId((long) mNameEditText.getTag());
-                                if (mAssetPictureImageView.getTag() != null)
-                                    asset.setImage((String) mAssetPictureImageView.getTag());
-                                asset.setName(mNameEditText.getText().toString());
-                                asset.setDescription(mDescriptionEditText.getText().toString());
-                                asset.setNotes(mNotesEditText.getText().toString());
-
-                                intent.putExtra(Asset.OBJECT_NAME, asset);
-                                startActivity(intent);
-                                return true;
-                            case R.id.manualLocation_item:
-                                // Enable the coordinate inputs and change colour to match other inputs
-                                mLatitudeEditText.setEnabled(true);
-                                mLongitudeEditText.setEnabled(true);
-                                mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                                mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                popupMenu.show();
-            }
-        });
-        mSaveAssetFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!inEditMode) {
-                    mNameEditText.setEnabled(true);
-                    mDescriptionEditText.setEnabled(true);
-                    mNotesEditText.setEnabled(true);
-                    mCurrentLocationButton.setVisibility(View.VISIBLE);
-                    mViewMapLargeFab.setVisibility(View.GONE);
-                    imageClick(true);
-                    mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
-                    inEditMode = true;
-                } else {
-                    if (fabMenuExpanded) {
-                        closeFabSubMenu();
-                    } else {
-                        openFabSubMenu();
-                    }
-                }
-            }
-        });
-        mAddMoreFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Asset asset = saveAsset();
-
-                if (asset == null) {
-                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Close menu
-                    closeFabSubMenu();
-
-                    // Clear fields
-                    mAssetPictureImageView.setImageResource(R.drawable.ic_default_asset_image);
-
-                    mNameEditText.setText("");
-                    mDescriptionEditText.setText("");
-                    mNotesEditText.setText("");
-                    mLatitudeEditText.setText("");
-                    mLongitudeEditText.setText("");
-
-                    mNameEditText.setTag("");
-                    mAssetPictureImageView.setTag("");
-                }
-            }
-        });
-        mViewListFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Asset asset = saveAsset();
-
-                if (asset == null) {
-                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Open map activity
-                    Intent intent = new Intent(AddAssetActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            }
-        });
-        mViewMapFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Asset asset = saveAsset();
-
-                if (asset == null) {
-                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Open map activity
-                    Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
-                    intent.putExtra(Asset.OBJECT_NAME, asset);
-                    startActivity(intent);
-                }
-            }
-        });
-        mViewMapLargeFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Asset asset = saveAsset();
-
-                if (asset == null) {
-                    Toast.makeText(getApplicationContext(), "Unable to save asset", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Open map activity
-                    Intent intent = new Intent(AddAssetActivity.this, MapActivity.class);
-                    intent.putExtra(Asset.OBJECT_NAME, asset);
-                    startActivity(intent);
-                }
-            }
-        });
-
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
+        // Populate the fields if data was passed in the intent
         if (getIntent().getExtras() != null) {
-            inEditMode = getIntent().getBooleanExtra(INTENT_NEW_ASSET, true);
-            Asset asset = (Asset) getIntent().getExtras().get(Asset.OBJECT_NAME);
-            if (asset.getImage() != null)
-                mAssetPictureImageView.setImageBitmap(loadFromInternalStorage(asset.getImage()));
+            mInEditMode = getIntent().getBooleanExtra(MMAConstants.INTENT_NEW_ASSET, true);
+            Asset asset = (Asset) getIntent().getExtras().get(MMAConstants.ASSET_OBJECT_NAME);
 
-            mNameEditText.setText(asset.getName());
-            mDescriptionEditText.setText(asset.getDescription());
-            mNotesEditText.setText(asset.getNotes());
-            mLatitudeEditText.setText(String.valueOf(asset.getLatitude()));
-            mLongitudeEditText.setText(String.valueOf(asset.getLongitude()));
+            if (asset != null) {
+                if (asset.getImage() != null)
+                    mAssetPictureImageView.setImageBitmap(loadFromInternalStorage(asset.getImage()));
 
-            mNameEditText.setTag(asset.getId());
-            mAssetPictureImageView.setTag(asset.getImage());
-            imageClick(true);
+                mNameEditText.setText(asset.getName());
+                mDescriptionEditText.setText(asset.getDescription());
+                mNotesEditText.setText(asset.getNotes());
+                mLatitudeEditText.setText(String.valueOf(asset.getLatitude()));
+                mLongitudeEditText.setText(String.valueOf(asset.getLongitude()));
+
+                mNameEditText.setTag(asset.getId());
+                mAssetPictureImageView.setTag(asset.getImage());
+            }
+
             // Set the activity to edit mode
-            if (!inEditMode) {
-                isNewAsset = false;
+            if (!mInEditMode) {
+                mIsNewAsset = false;
                 // Disable or hide objects
                 mNameEditText.setEnabled(false);
                 mDescriptionEditText.setEnabled(false);
                 mNotesEditText.setEnabled(false);
-                imageClick(false);
+                mAssetPictureImageView.setClickable(false);
                 mCurrentLocationButton.setVisibility(View.GONE);
                 mViewMapLargeFab.setVisibility(View.VISIBLE);
                 mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
             }
-
         }
 
         // Hide the additional buttons initially
         closeFabSubMenu();
     }
 
-    public void imageClick(final boolean flag){
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == MMAConstants.REQUEST_PERMISSION_ACCESS_FINE_LOCATION) {
+                getDeviceLocation();
+            } else if (requestCode == MMAConstants.REQUEST_PERMISSION_EXTERNAL_STORAGE) {
+                saveImageFile();
+            }
+        }
+    }
 
-        mAssetPictureImageView.setOnClickListener(new View.OnClickListener() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MMAConstants.REQUEST_INTENT_GATHER_IMAGE && resultCode == RESULT_OK && data != null) {
+            Bitmap imageBitmap = null;
 
-            @Override
-            public void onClick(View v) {
-                if(flag) {
-                    requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
+            if (mFileOrigin == MMAConstants.PICTURE_ORIGIN_CAMERA && data.getExtras() != null) {
+                imageBitmap = (Bitmap) data.getExtras().get("data");
+            }
+            if (mFileOrigin == MMAConstants.PICTURE_ORIGIN_GALLERY && data.getData() != null) {
+                Uri imageUri = data.getData();
+                try {
+                    InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                    imageBitmap = BitmapFactory.decodeStream(imageStream);
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_photo_load_failed), Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+
+            if (imageBitmap != null) {
+                String oldFilePath = (String) mAssetPictureImageView.getTag();
+                String filePath = saveToInternalStorage(imageBitmap);
+
+                // Delete existing file if there is one
+                if (oldFilePath != null) {
+                    String[] filePathParts = oldFilePath.split("/");
+                    getApplicationContext().deleteFile(filePathParts[filePathParts.length - 1]);
+                }
+
+                // Set the ImageView to show the new file
+                mAssetPictureImageView.setImageBitmap(imageBitmap);
+                mAssetPictureImageView.setTag(filePath);
+            }
+        }
     }
 
-    @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
+    /* UI Functions */
+
+    private void openFabSubMenu() {
+        mAddMoreFabLayout.setVisibility(View.VISIBLE);
+        mViewListFabLayout.setVisibility(View.VISIBLE);
+        mViewMapFabLayout.setVisibility(View.VISIBLE);
+        mFabMenuExpanded = true;
     }
 
-    @Override
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
+    private void closeFabSubMenu() {
+        mAddMoreFabLayout.setVisibility(View.INVISIBLE);
+        mViewListFabLayout.setVisibility(View.INVISIBLE);
+        mViewMapFabLayout.setVisibility(View.INVISIBLE);
+        mFabMenuExpanded = false;
     }
 
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        mCurrentLocationButton.setEnabled(true);
+    /* Data functions */
+
+    @Nullable
+    private Asset getViewData() {
+        long id = 0;
+        if (mNameEditText.getTag() != null)
+            id = (long) mNameEditText.getTag();
+        String name = mNameEditText.getText().toString();
+        String description = mDescriptionEditText.getText().toString();
+        String notes = mNotesEditText.getText().toString();
+        String latitude = mLatitudeEditText.getText().toString();
+        String longitude = mLongitudeEditText.getText().toString();
+        String imagePath = (String) mAssetPictureImageView.getTag();
+
+        // Make sure the required fields are filled
+        if (TextUtils.isEmpty(name)) {
+            mNameEditText.setError(getString(R.string.required_asset_name));
+        }
+        if (TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
+            mCurrentLocationButton.setError(getString(R.string.required_asset_location));
+        }
+
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
+            // Don't attempt to store anything if the correct fields aren't provided
+            closeFabSubMenu();
+            return null;
+        }
+
+        // Id gets set even if null but only gets used for an update; when it would actually have a value
+        Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
+
+        if (mIsNewAsset) {
+            databaseCallTask.execute(MMAConstants.DATABASE_INSERT_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
+        } else {
+            databaseCallTask.execute(MMAConstants.DATABASE_UPDATE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
+        }
+
+        return asset;
     }
 
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mCurrentLocationButton.setEnabled(false);
-        mGoogleApiClient.connect();
+    @Nullable
+    private String saveToInternalStorage(Bitmap bitmap) {
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss-SSS", Locale.CANADA).format(new Date());
+        String fileName = "MMA_" + timestamp + ".jpg";
+        String filePath = null;
+
+        File photoFile = new File(getFilesDir(), fileName);
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(photoFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            filePath = photoFile.getPath();
+            outputStream.close();
+        } catch (IOException e) {
+            Toast.makeText(getApplicationContext(), getString(R.string.error_photo_save_failed), Toast.LENGTH_SHORT).show();
+        }
+
+        return filePath;
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Toast.makeText(this, "Connection to Google Play Services failed", Toast.LENGTH_SHORT).show();
+    @Nullable
+    private Bitmap loadFromInternalStorage(String filePath) {
+        Bitmap bitmap = null;
+
+        try {
+            File imageFile = new File(filePath);
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(imageFile));
+        } catch (FileNotFoundException e) {
+            Toast.makeText(getApplicationContext(), getString(R.string.error_photo_load_failed), Toast.LENGTH_SHORT).show();
+        }
+
+        return bitmap;
     }
 
+    /* Helper functions */
+
+    /**
+     * Attempts to request permissions from the user.
+     *
+     * @param permissions         A String array of permissions to check
+     * @param permissionRequestId A unique id to identify the permission request call
+     */
     public void requestAppPermissions(String[] permissions, int permissionRequestId) {
         boolean allPermissionsGranted = true;
 
@@ -400,145 +304,244 @@ public class AddAssetActivity extends AppCompatActivity implements GoogleApiClie
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MapActivity.PERMISSION_REQUEST_ACCESS_FINE_LOCATION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getDeviceLocation();
-                }
-                break;
-            case PERMISSION_REQUEST_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    saveImageFile();
-                }
-                break;
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CAPTURE_IMAGE && resultCode == RESULT_OK) {
-            if (data != null && data.getExtras() != null) {
-                Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-                String filePath = saveToInternalStorage(imageBitmap);
-
-                if (filePath != null) {
-                    mAssetPictureImageView.setImageBitmap(imageBitmap);
-                }
-                mAssetPictureImageView.setTag(filePath);
-            }
-        }
-    }
-
-    private void openFabSubMenu() {
-        mAddMoreFabLayout.setVisibility(View.VISIBLE);
-        mViewListFabLayout.setVisibility(View.VISIBLE);
-        mViewMapFabLayout.setVisibility(View.VISIBLE);
-        fabMenuExpanded = true;
-    }
-
-    private void closeFabSubMenu() {
-        mAddMoreFabLayout.setVisibility(View.INVISIBLE);
-        mViewListFabLayout.setVisibility(View.INVISIBLE);
-        mViewMapFabLayout.setVisibility(View.INVISIBLE);
-        fabMenuExpanded = false;
-    }
-
-    private Asset saveAsset() {
-        long id = 0;
-        if (mNameEditText.getTag() != null)
-            id = (long) mNameEditText.getTag();
-        String name = mNameEditText.getText().toString();
-        String description = mDescriptionEditText.getText().toString();
-        String notes = mNotesEditText.getText().toString();
-        String latitude = mLatitudeEditText.getText().toString();
-        String longitude = mLongitudeEditText.getText().toString();
-        String imagePath = (String) mAssetPictureImageView.getTag();
-
-        if (TextUtils.isEmpty(name)) {
-            mNameEditText.setError("Name cannot be empty");
-        }
-        if (TextUtils.isEmpty(latitude)) {
-            mLatitudeEditText.setError("Latitude cannot be empty");
-        }
-        if (TextUtils.isEmpty(longitude)) {
-            mLongitudeEditText.setError("Longitude cannot be empty");
-        }
-
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(latitude) || TextUtils.isEmpty(longitude)) {
-            // Don't attempt to store anything if the correct fields aren't provided
-            closeFabSubMenu();
-            return null;
-        }
-
-        Asset asset = new Asset(id, name, description, notes, Double.parseDouble(latitude), Double.parseDouble(longitude), imagePath);
-
-        if (isNewAsset) {
-            databaseCallTask.execute(DatabaseCallTask.INSERT_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
-        } else {
-            // TODO Delete old image if a new one is added
-            databaseCallTask.execute(DatabaseCallTask.UPDATE_ASSET, DatabaseCallTask.ADD_ASSET_ACTIVITY, asset);
-        }
-
-        return asset;
-    }
-
-    private String saveToInternalStorage(Bitmap bitmap) {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss-SSS", Locale.CANADA).format(new Date());
-        String fileName = "MMA_" + timestamp + ".jpg";
-        String filePath = null;
-
-        File photoFile = new File(getFilesDir(), fileName);
-
-        try {
-            FileOutputStream outputStream = new FileOutputStream(photoFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            filePath = photoFile.getPath();
-            outputStream.close();
-        } catch (IOException e) {
-            Toast.makeText(getApplicationContext(), "Unable to save photo", Toast.LENGTH_SHORT).show();
-        }
-        return filePath;
-    }
-
-    private Bitmap loadFromInternalStorage(String filePath) {
-        Bitmap bitmap = null;
-
-        try {
-            File imageFile = new File(filePath);
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(imageFile));
-        } catch (FileNotFoundException e) {
-            Toast.makeText(getApplicationContext(), "Unable to load photo", Toast.LENGTH_SHORT).show();
-        }
-
-        return bitmap;
-    }
-
+    /**
+     * Attempts to get the device's current location. Updates the latitude and longitude fields if successful
+     */
     private void getDeviceLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            String provider = mLocationManager.getBestProvider(new Criteria(), true);
+            Location lastLocation = mLocationManager.getLastKnownLocation(provider);
             if (lastLocation != null) {
                 mLatitudeEditText.setText(String.valueOf(lastLocation.getLatitude()));
                 mLongitudeEditText.setText(String.valueOf(lastLocation.getLongitude()));
             } else {
-                Toast.makeText(this, "Unable to get location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.error_location_device_failed), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /**
+     * Attempts to create and start an intent to get the user's desired picture.
+     */
     private void saveImageFile() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_CAPTURE_IMAGE);
-        } else {
-            Toast.makeText(AddAssetActivity.this, "Unable to find a suitable camera app", Toast.LENGTH_SHORT).show();
+        Intent intent = null;
+
+        switch (mFileOrigin) {
+            case MMAConstants.PICTURE_ORIGIN_CAMERA:
+                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                break;
+            case MMAConstants.PICTURE_ORIGIN_GALLERY:
+                intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                break;
+            default:
+                break;
         }
 
+        if (intent != null && intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, MMAConstants.REQUEST_INTENT_GATHER_IMAGE);
+        } else {
+            Toast.makeText(getApplicationContext(), getString(R.string.error_photo_source_failed), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public void databaseCallFinished(Asset asset) {
-        // TODO Change to allow the user to choose where to navigate to
-        return;
-    }
+    /* Click Listeners */
+
+    private final View.OnClickListener mAssetPictureImageViewClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mAssetPictureImageView);
+            popupMenu.getMenuInflater().inflate(R.menu.get_picture_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.pictureCamera_item:
+                            mFileOrigin = MMAConstants.PICTURE_ORIGIN_CAMERA;
+                            break;
+                        case R.id.pictureGallery_item:
+                            mFileOrigin = MMAConstants.PICTURE_ORIGIN_GALLERY;
+                            break;
+                        default:
+                            break;
+                    }
+                    requestAppPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, MMAConstants.REQUEST_PERMISSION_EXTERNAL_STORAGE);
+                    return true;
+                }
+            });
+            popupMenu.show();
+        }
+    };
+
+    private final View.OnClickListener mCurrentLocationButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            PopupMenu popupMenu = new PopupMenu(AddAssetActivity.this, mCurrentLocationButton);
+            popupMenu.getMenuInflater().inflate(R.menu.get_location_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    // Disable coordinate inputs and make them blend into the background
+                    mLatitudeEditText.setEnabled(false);
+                    mLongitudeEditText.setEnabled(false);
+                    mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+                    mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.currentLocation_item:
+                            // Get the current device location
+                            requestAppPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MMAConstants.REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
+                            return true;
+                        case R.id.addressLocation_item:
+                            // Create a popup window for the user to enter an address or postal code into
+                            final EditText addressInput = new EditText(getApplicationContext());
+                            addressInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                            addressInput.setTextColor(getResources().getColor(R.color.colorText));
+                            final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(AddAssetActivity.this, R.style.alertDialog))
+                                    .setView(addressInput)
+                                    .setTitle(getString(R.string.input_location_address))
+                                    .setPositiveButton(getString(R.string.input_button_ok), null)
+                                    .setNegativeButton(getString(R.string.input_button_cancel), null)
+                                    .create();
+
+                            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                @Override
+                                public void onShow(DialogInterface dialogInterface) {
+                                    Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorText));
+                                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorText));
+                                    okButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Geocoder coder = new Geocoder(AddAssetActivity.this, Locale.getDefault());
+                                            final List<Address> addresses;
+                                            try {
+                                                String addressString = addressInput.getText().toString();
+                                                addresses = coder.getFromLocationName(addressString, 100);
+                                                if (!addresses.isEmpty()) {
+                                                    if (addresses.size() > 1) {
+                                                        // More than one result found. Alert the user
+                                                        addressInput.setError(getString(R.string.error_location_address_ambiguous));
+                                                        addressInput.setText(addressString);
+                                                    } else {
+                                                        // Only one result found, grab the coordinates
+                                                        Address location = addresses.get(0);
+                                                        mLatitudeEditText.setText(String.valueOf(location.getLatitude()));
+                                                        mLongitudeEditText.setText(String.valueOf(location.getLongitude()));
+                                                        alertDialog.dismiss();
+                                                    }
+                                                }
+                                            } catch (IOException e) {
+                                                Toast.makeText(getApplicationContext(), getString(R.string.error_location_address_failed), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+
+                            alertDialog.show();
+                            return true;
+                        case R.id.mapLocation_item:
+                            // Open a map activity for the user to click a location on
+                            Asset asset = new Asset();
+                            Intent intent = new Intent(AddAssetActivity.this, GetLocationMapsActivity.class);
+
+                            // Store the current input fields so that they can be restored
+                            if (mNameEditText.getTag() != null)
+                                asset.setId((long) mNameEditText.getTag());
+                            if (mAssetPictureImageView.getTag() != null)
+                                asset.setImage((String) mAssetPictureImageView.getTag());
+                            asset.setName(mNameEditText.getText().toString());
+                            asset.setDescription(mDescriptionEditText.getText().toString());
+                            asset.setNotes(mNotesEditText.getText().toString());
+
+                            intent.putExtra(MMAConstants.ASSET_OBJECT_NAME, asset);
+                            startActivity(intent);
+                            return true;
+                        case R.id.manualLocation_item:
+                            // Enable the coordinate inputs and change colour to match other inputs
+                            mLatitudeEditText.setEnabled(true);
+                            mLongitudeEditText.setEnabled(true);
+                            mLatitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                            mLongitudeEditText.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
+            popupMenu.show();
+        }
+    };
+
+    private final View.OnClickListener mSaveAssetFabClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (!mInEditMode) {
+                mNameEditText.setEnabled(true);
+                mDescriptionEditText.setEnabled(true);
+                mNotesEditText.setEnabled(true);
+                mAssetPictureImageView.setClickable(true);
+                mCurrentLocationButton.setVisibility(View.VISIBLE);
+                mViewMapLargeFab.setVisibility(View.GONE);
+
+                mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_save);
+                mInEditMode = true;
+            } else {
+                if (mFabMenuExpanded) {
+                    closeFabSubMenu();
+                } else {
+                    openFabSubMenu();
+                }
+            }
+        }
+    };
+
+    private final View.OnClickListener mFabClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Asset asset = getViewData();
+
+            if (asset == null) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_asset_save_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                // Close menu
+                closeFabSubMenu();
+
+                // Determine which fab was clicked
+                switch (view.getId()) {
+                    case R.id.assetAddMore_fab:
+                        // Reset fields for another asset
+                        mAssetPictureImageView.setImageResource(R.drawable.ic_default_asset_image);
+                        mIsNewAsset = true;
+
+                        mNameEditText.setText(null);
+                        mDescriptionEditText.setText(null);
+                        mNotesEditText.setText(null);
+                        mLatitudeEditText.setText(null);
+                        mLongitudeEditText.setText(null);
+
+                        mNameEditText.setTag(null);
+                        mAssetPictureImageView.setTag(null);
+                        break;
+                    case R.id.assetViewList_fab:
+                        // Return to the main list of assets
+                        Intent returnToMainListIntent = new Intent(AddAssetActivity.this, MainActivity.class);
+                        startActivity(returnToMainListIntent);
+                        break;
+                    case R.id.assetViewMap_fab:
+                    case R.id.assetViewMapLarge_fab:
+                        // Open the map view centered on this asset
+                        Intent viewOnMapIntent = new Intent(AddAssetActivity.this, MapActivity.class);
+                        viewOnMapIntent.putExtra(MMAConstants.ASSET_OBJECT_NAME, asset);
+                        startActivity(viewOnMapIntent);
+                        break;
+                    default:
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_default_case_needed), Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        }
+    };
 }

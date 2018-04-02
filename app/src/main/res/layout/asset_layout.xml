@@ -6,5 +6,5 @@
     android:layout_margin="16dp"
     android:textAppearance="?attr/textAppearanceListItem"
     android:textColor="@color/colorText"
-    android:textColorHint="@color/colorHint"></TextView>
+    android:textColorHint="@color/colorHint"/>
 
