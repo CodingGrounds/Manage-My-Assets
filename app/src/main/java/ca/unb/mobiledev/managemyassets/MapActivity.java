@@ -17,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -54,7 +55,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         locationCounter = 0;
         directionFab = findViewById(R.id.directions_fab);
         databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
-        assetList = new ArrayList<>(Arrays.asList(databaseHelper.selectAssets()));
+        assetList = null;
         detailAsset = (Asset) getIntent().getSerializableExtra(MMAConstants.ASSET_OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -65,7 +66,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(true);
-        updateMapAssets();
+
+        DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
+        databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAP_ACTIVITY, null);
+
+        //updateMapAssets();
         setCurrentLocationEnabled();
         if (detailAsset != null) {
             // Zoom in on the marker the user chooses to view
@@ -75,6 +80,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         addMapClickListener(false);
     }
+
+
+
+    public void databaseCallFinished(Asset[] assets) {
+        assetList = new ArrayList<>(Arrays.asList(assets));
+        Log.i("DatabaseFinished", " " + assets.toString());
+        updateMapAssets();
+    }
+
+    public void databaseCallFinished(Asset asset) {
+        Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
+        detailsIntent.putExtra(MMAConstants.ASSET_OBJECT_NAME, asset);
+        detailsIntent.putExtra(MMAConstants.INTENT_NEW_ASSET, false);
+        startActivity(detailsIntent);
+    }
+
 
     private void updateMapAssets() {
         // Add all assets from the database to the map
@@ -131,12 +152,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    public void databaseCallFinished(Asset asset) {
-        Intent detailsIntent = new Intent(MapActivity.this, AddAssetActivity.class);
-        detailsIntent.putExtra(MMAConstants.ASSET_OBJECT_NAME, asset);
-        detailsIntent.putExtra(MMAConstants.INTENT_NEW_ASSET, false);
-        startActivity(detailsIntent);
-    }
+
 
     //Method for adding direction Fab
     private void addDirectionsButton(Marker marker) {
