@@ -162,10 +162,6 @@ public class AddAssetActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 Asset asset = getViewData();
                                 databaseCallTask.execute(MMAConstants.DATABASE_DELETE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
-                                resetFields();
-                                toggleEditMode(true);
-                                mIsNewAsset = true;
-                                mInEditMode = true;
                             }
                         })
                         .create();
@@ -271,6 +267,11 @@ public class AddAssetActivity extends AppCompatActivity {
             mSaveAssetFab.setImageResource(android.R.drawable.ic_menu_edit);
         }
         invalidateOptionsMenu();
+    }
+
+    public void databaseCallFinished() {
+        Intent detailsIntent = new Intent(AddAssetActivity.this, MainActivity.class);
+        startActivity(detailsIntent);
     }
 
     /* Data functions */

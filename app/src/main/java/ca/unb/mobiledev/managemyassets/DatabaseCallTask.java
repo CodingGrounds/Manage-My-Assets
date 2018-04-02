@@ -50,7 +50,7 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
                 case MMAConstants.DATABASE_UPDATE_ASSET:
                     return new Object[]{caller, MMAConstants.DATABASE_UPDATE_ASSET, myDatabase.updateAsset((Asset) params[2])};
                 case MMAConstants.DATABASE_DELETE_ASSET:
-                    return new Object[]{caller, myDatabase.deleteAsset((Asset) params[2])};
+                    return new Object[]{caller, MMAConstants.DATABASE_DELETE_ASSET, myDatabase.deleteAsset((Asset) params[2])};
                 default:
                     return new Object[0];
             }
@@ -84,6 +84,9 @@ public class DatabaseCallTask extends AsyncTask<Object, Integer, Object[]> {
                     }
                     break;
                 case MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY:
+                    if ((int) params[1] == MMAConstants.DATABASE_DELETE_ASSET) {
+                        ((AddAssetActivity) activity).databaseCallFinished();
+                    }
                     break;
                 default:
                     break;
