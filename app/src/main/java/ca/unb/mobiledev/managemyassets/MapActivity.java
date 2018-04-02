@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextThemeWrapper;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -39,7 +38,6 @@ import java.util.Arrays;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
-    private DatabaseHelper databaseHelper;
     private ArrayList<Asset> assetList;
     private GoogleMap mMap;
     private Asset detailAsset;
@@ -55,7 +53,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         locationCounter = 0;
         directionFab = findViewById(R.id.directions_fab);
-        databaseHelper = DatabaseHelper.getDatabaseHelper(MapActivity.this);
         assetList = null;
         detailAsset = (Asset) getIntent().getSerializableExtra(MMAConstants.ASSET_OBJECT_NAME);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -71,7 +68,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
         databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAP_ACTIVITY, null);
 
-        //updateMapAssets();
         setCurrentLocationEnabled();
         if (detailAsset != null) {
             // Zoom in on the marker the user chooses to view
@@ -86,7 +82,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void databaseCallFinished(Asset[] assets) {
         assetList = new ArrayList<>(Arrays.asList(assets));
-        Log.i("DatabaseFinished", " " + assets.toString());
         updateMapAssets();
     }
 
