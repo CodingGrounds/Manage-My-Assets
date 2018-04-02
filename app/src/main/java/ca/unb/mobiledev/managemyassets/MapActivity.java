@@ -17,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Toast;
 
@@ -111,9 +112,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     newAsset.setLatitude(latLng.latitude);
                     newAsset.setLongitude(latLng.longitude);
 
-                    final AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this)
+                    final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(MapActivity.this, R.style.alertDialog))
                             .setTitle(getString(R.string.location_map_add_title))
                             .setMessage(getString(R.string.location_map_add_message))
+                            .setNegativeButton(getString(R.string.input_button_no), null)
                             .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -123,7 +125,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     startActivity(addAsset);
                                 }
                             })
-                            .setNegativeButton(getString(R.string.input_button_no), null)
                             .create();
                     alertDialog.show();
                 }
