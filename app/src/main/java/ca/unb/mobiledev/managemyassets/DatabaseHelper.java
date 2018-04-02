@@ -166,15 +166,15 @@ class DatabaseHelper extends SQLiteOpenHelper {
             return asset;
     }
 
-    public boolean deleteAsset(Asset asset) {
+    public Asset[] deleteAsset(Asset asset) {
         SQLiteDatabase database = this.getWritableDatabase();
 
         String whereClause = "id = ?";
         String[] whereArgs = {String.valueOf(asset.getId())};
 
-        long result = database.delete(MMAConstants.ASSET_TABLE_NAME, whereClause, whereArgs);
+        database.delete(MMAConstants.ASSET_TABLE_NAME, whereClause, whereArgs);
         database.close();
 
-        return result != -1;
+        return selectAssets();
     }
 }

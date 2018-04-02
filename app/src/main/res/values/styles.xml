@@ -10,6 +10,7 @@
 
     <style name="alertDialog" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:textColor">@color/colorText</item>
     </style>
 
 </resources>

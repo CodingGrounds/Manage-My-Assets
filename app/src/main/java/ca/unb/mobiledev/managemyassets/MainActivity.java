@@ -1,5 +1,6 @@
 package ca.unb.mobiledev.managemyassets;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,10 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView.Adapter assetAdapter;
     private ArrayList<Asset> assetList;
+
+    DatabaseCallTask databaseCallTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Initialize variables
-        DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
+        databaseCallTask = new DatabaseCallTask(this);
         FloatingActionButton mAddAssetFab = findViewById(R.id.assetAdd_fab);
 
         RecyclerView recyclerView = findViewById(R.id.asset_recycler_view);
@@ -96,6 +101,25 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(MMAConstants.ASSET_OBJECT_NAME, viewHolder.asset);
                     intent.putExtra(MMAConstants.INTENT_NEW_ASSET, false);
                     startActivity(intent);
+                }
+            });
+            viewHolder.mAssetTextView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.alertDialog))
+                            .setTitle(getString(R.string.asset_delete))
+                            .setMessage(getString(R.string.asset_delete_confirm))
+                            .setNegativeButton(getString(R.string.input_button_no), null)
+                            .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Asset asset = viewHolder.asset;
+                                    databaseCallTask.execute(MMAConstants.DATABASE_DELETE_ASSET, MMAConstants.ORIGIN_MAIN_ACTIVITY, asset);
+                                }
+                            })
+                            .create();
+                    alertDialog.show();
+                    return true;
                 }
             });
         }
