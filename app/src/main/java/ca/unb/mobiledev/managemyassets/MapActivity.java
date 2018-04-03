@@ -64,8 +64,55 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                final Asset newAsset = new Asset();
+                newAsset.setLatitude(latLng.latitude);
+                newAsset.setLongitude(latLng.longitude);
 
-        DatabaseCallTask databaseCallTask = new DatabaseCallTask(this);
+                final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(MapActivity.this, R.style.alertDialog))
+                        .setTitle(getString(R.string.location_map_add_title))
+                        .setMessage(getString(R.string.location_map_add_message))
+                        .setNegativeButton(getString(R.string.input_button_no), null)
+                        .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent addAsset = new Intent(MapActivity.this, AddAssetActivity.class);
+                                addAsset.putExtra(MMAConstants.ASSET_OBJECT_NAME, newAsset);
+                                addAsset.putExtra(MMAConstants.INTENT_NEW_ASSET,  true);
+                                startActivity(addAsset);
+                            }
+                        })
+                        .create();
+                alertDialog.show();
+            }
+        });
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
+                addDirectionsButton(marker);
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                return true;
+            }
+        });
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                directionFab.setVisibility(View.INVISIBLE);
+                marker.hideInfoWindow();
+            }
+        });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                databaseCallTask = new DatabaseCallTask(MapActivity.this);
+                databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSET, MMAConstants.ORIGIN_MAP_ACTIVITY, marker.getPosition());
+            }
+        });
+
+        databaseCallTask = new DatabaseCallTask(this);
         databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAP_ACTIVITY, null);
 
         setCurrentLocationEnabled();
@@ -75,7 +122,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else if (currentLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.latitude, currentLocation.longitude), 15));
         }
-        addMapClickListener(false);
     }
 
 
@@ -98,56 +144,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for (Asset asset : assetList) {
             mMap.addMarker(new MarkerOptions().position(new LatLng(asset.getLatitude(), asset.getLongitude())).title(asset.getName()).snippet(asset.getDescription()));
         }
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.showInfoWindow();
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                addDirectionsButton(marker);
-                mMap.setOnMapClickListener(null);
-                return true;
-            }
-        });
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                databaseCallTask = new DatabaseCallTask(MapActivity.this);
-                databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSET, MMAConstants.ORIGIN_MAP_ACTIVITY, marker.getPosition());
-            }
-        });
-
     }
-
-    //Flag for window close or not
-    private void addMapClickListener(final boolean flag){
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if(!flag){
-                    final Asset newAsset = new Asset();
-                    newAsset.setLatitude(latLng.latitude);
-                    newAsset.setLongitude(latLng.longitude);
-
-                    final AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(MapActivity.this, R.style.alertDialog))
-                            .setTitle(getString(R.string.location_map_add_title))
-                            .setMessage(getString(R.string.location_map_add_message))
-                            .setNegativeButton(getString(R.string.input_button_no), null)
-                            .setPositiveButton(getString(R.string.input_button_yes), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Intent addAsset = new Intent(MapActivity.this, AddAssetActivity.class);
-                                    addAsset.putExtra(MMAConstants.ASSET_OBJECT_NAME, newAsset);
-                                    addAsset.putExtra(MMAConstants.INTENT_NEW_ASSET,  true);
-                                    startActivity(addAsset);
-                                }
-                            })
-                            .create();
-                    alertDialog.show();
-                }
-            }
-        });
-    }
-
 
 
     //Method for adding direction Fab
@@ -160,14 +157,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(
                         "http://maps.google.com/maps?saddr=" + currentLocation.latitude + "," + currentLocation.longitude + "&daddr=" + directionsMarker.getPosition().latitude + "," + directionsMarker.getPosition().longitude));
                 startActivity(intent);
-            }
-        });
-        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
-            @Override
-            public void onInfoWindowClose(Marker marker) {
-                directionFab.setVisibility(View.INVISIBLE);
-                addMapClickListener(true);
-                marker.hideInfoWindow();
             }
         });
     }
