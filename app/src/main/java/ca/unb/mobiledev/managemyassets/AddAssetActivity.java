@@ -161,6 +161,7 @@ public class AddAssetActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 Asset asset = getViewData();
+                                databaseCallTask = new DatabaseCallTask(AddAssetActivity.this);
                                 databaseCallTask.execute(MMAConstants.DATABASE_DELETE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
                             }
                         })
@@ -561,8 +562,10 @@ public class AddAssetActivity extends AppCompatActivity {
                 // Close menu
                 closeFabSubMenu();
                 if (mIsNewAsset) {
+                    databaseCallTask = new DatabaseCallTask(AddAssetActivity.this);
                     databaseCallTask.execute(MMAConstants.DATABASE_INSERT_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
                 } else {
+                    databaseCallTask = new DatabaseCallTask(AddAssetActivity.this);
                     databaseCallTask.execute(MMAConstants.DATABASE_UPDATE_ASSET, MMAConstants.ORIGIN_ADD_ASSET_ACTIVITY, asset);
                 }
 
