@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(assetAdapter);
 
+        databaseCallTask = new DatabaseCallTask(MainActivity.this);
         databaseCallTask.execute(MMAConstants.DATABASE_SELECT_ASSETS, MMAConstants.ORIGIN_MAIN_ACTIVITY, null);
     }
 
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     Asset asset = viewHolder.asset;
+                                    databaseCallTask = new DatabaseCallTask(MainActivity.this);
                                     databaseCallTask.execute(MMAConstants.DATABASE_DELETE_ASSET, MMAConstants.ORIGIN_MAIN_ACTIVITY, asset);
                                 }
                             })
