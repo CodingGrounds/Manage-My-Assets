@@ -31,6 +31,7 @@
 
         <activity
             android:name=".MapActivity"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -40,6 +41,7 @@
         </activity>
         <activity
             android:name=".AddAssetActivity"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="stateHidden">
 
@@ -50,6 +52,7 @@
         </activity>
         <activity
             android:name=".GetLocationMapsActivity"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".AddAssetActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
